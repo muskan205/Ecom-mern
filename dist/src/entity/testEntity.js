@@ -12,9 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserNew = void 0;
 const typeorm_1 = require("typeorm");
 let UserNew = class UserNew {
-    constructor() {
-        this.active = false;
-    }
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
@@ -24,19 +21,7 @@ __decorate([
     (0, typeorm_1.Column)("text"),
     __metadata("design:type", String)
 ], UserNew.prototype, "firstName", void 0);
-__decorate([
-    (0, typeorm_1.Column)("text"),
-    __metadata("design:type", String)
-], UserNew.prototype, "lastName", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: "text", default: "default" }),
-    __metadata("design:type", String)
-], UserNew.prototype, "description", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: "boolean", nullable: false, default: false }),
-    __metadata("design:type", Boolean)
-], UserNew.prototype, "active", void 0);
 UserNew = __decorate([
-    (0, typeorm_1.Entity)("muskan_new1")
+    (0, typeorm_1.Entity)("muskan_test88")
 ], UserNew);
 exports.UserNew = UserNew;

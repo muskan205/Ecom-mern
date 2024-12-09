@@ -20,7 +20,8 @@ Steps to run this project:
 npm run migrate
 
 ## husky setup
- ## before pusing the code all pending migrations ran automatically
+
+## before pusing the code all pending migrations ran automatically
 
 npx husky-init
 
@@ -28,4 +29,3 @@ npx husky-init
 1.install # npm install --save-dev prettier
 
 2.npm run format
-

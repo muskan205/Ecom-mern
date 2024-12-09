@@ -2,8 +2,8 @@ import { execSync } from "child_process";
 import path from "path";
 
 // Set paths for your TypeORM CLI and DataSource file
-const dataSourcePath = path.resolve(__dirname, "src/data-source.ts");
-const migrationsDir = path.resolve(__dirname, "src/migrations"); // Adjust if needed
+const dataSourcePath = path.resolve(__dirname, "data-source.ts");
+const migrationsDir = path.resolve(__dirname, "migrations"); // Adjust if needed
 
 // 1. Generate migration
 const generateMigration = (migrationName: string) => {

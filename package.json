@@ -6,6 +6,11 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^16.11.10",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "husky": "^8.0.0",
     "prettier": "^3.4.2",
     "ts-node": "^10.9.2",
@@ -21,12 +26,16 @@
   },
   "scripts": {
     "start": "ts-node src/index.ts",
-    "migrate": "ts-node migration.config.ts",
+    "migrate": "ts-node src/infra/db/migration.config.ts",
     "prepare": "husky install",
     "format": "prettier --write .",
     "postinstall": "husky install"
   },
   "lint-staged": {
-   "**/*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"
- }
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "**/*.{json,css,md}": "prettier --write"
+  }
 }

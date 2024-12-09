@@ -9,34 +9,29 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserNew = void 0;
+exports.Order = void 0;
 const typeorm_1 = require("typeorm");
-let UserNew = class UserNew {
-    constructor() {
-        this.active = false;
-    }
+const CustomerEntity_1 = require("./CustomerEntity");
+let Order = class Order {
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Object)
-], UserNew.prototype, "id", void 0);
+], Order.prototype, "order_id", void 0);
 __decorate([
-    (0, typeorm_1.Column)("text"),
+    (0, typeorm_1.Column)({ type: "text", nullable: false }),
     __metadata("design:type", String)
-], UserNew.prototype, "firstName", void 0);
+], Order.prototype, "order_name", void 0);
 __decorate([
-    (0, typeorm_1.Column)("text"),
-    __metadata("design:type", String)
-], UserNew.prototype, "lastName", void 0);
+    (0, typeorm_1.Column)({ type: Date }),
+    __metadata("design:type", Object)
+], Order.prototype, "order_date", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text", default: "default" }),
-    __metadata("design:type", String)
-], UserNew.prototype, "description", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: "boolean", nullable: false, default: false }),
-    __metadata("design:type", Boolean)
-], UserNew.prototype, "active", void 0);
-UserNew = __decorate([
-    (0, typeorm_1.Entity)("muskan_new1")
-], UserNew);
-exports.UserNew = UserNew;
+    (0, typeorm_1.OneToMany)(() => CustomerEntity_1.Customers, (customer) => customer.orders),
+    (0, typeorm_1.JoinColumn)({ name: "customer_id" }),
+    __metadata("design:type", CustomerEntity_1.Customers)
+], Order.prototype, "customer", void 0);
+Order = __decorate([
+    (0, typeorm_1.Entity)()
+], Order);
+exports.Order = Order;

@@ -1,7 +1,7 @@
 // CommonJS style
 const { DataSource } = require("typeorm");
-const { UserNew } = require("./entity/User");
-const { Student } = require("./entity/Student");
+const { UserNew } = require('./../../entity/User');
+const { Student } = require("./../../entity/Student");
 
 module.exports = {
   AppDataSource: new DataSource({
@@ -13,7 +13,7 @@ module.exports = {
     database: "muskan_test",
     synchronize: false,
     entities: ["src/entity/*.ts"],
-    migrations: ["src/migrations/*.ts"],
+    migrations: ["src/infra/db/migrations/*.ts"],
     migrationsTableName: "custom_migration_table",
   }),
 };
