@@ -1,12 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity('muskan_test')
+@Entity("muskan_test88")
 export class UserNew {
+  @PrimaryGeneratedColumn()
+  id: number | undefined;
 
-    @PrimaryGeneratedColumn()
-    id: number | undefined
-
-    @Column("text")
-    firstName!: string 
-
+  @Column("text")
+  firstName!: string;
 }

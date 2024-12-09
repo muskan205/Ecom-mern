@@ -1,14 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity('student')
+@Entity("student")
 export class Student {
+  @PrimaryGeneratedColumn()
+  id: number | undefined;
 
-    @PrimaryGeneratedColumn()
-    id: number | undefined
+  @Column()
+  name!: string;
 
-    @Column()
-    name!: string 
-
-    @Column()
-    roll_no!: string
+  @Column()
+  roll_no!: string;
 }

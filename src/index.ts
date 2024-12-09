@@ -1,6 +1,6 @@
 import express from "express"; // Correct syntax for express
 const { AppDataSource } = require("./data-source");
-import userRoutes from "../routes/userRoutes"
+import userRoutes from "../routes/userRoutes";
 import "reflect-metadata"; // Required for TypeORM decorators to work
 const app = express();
 const port = 3000;
@@ -12,7 +12,7 @@ AppDataSource.initialize()
     console.log("Data Source has been initialized!");
 
     // Use the userRoutes for handling /users routes
-    app.use("/api", userRoutes); 
+    app.use("/api", userRoutes);
 
     // Start the Express server
     app.listen(port, () => {

@@ -12,9 +12,7 @@ module.exports = {
     password: "geitpl",
     database: "muskan_test",
     synchronize: false,
-    entities: [
-      "src/entity/*.ts"
-    ],
+    entities: ["src/entity/*.ts"],
     migrations: ["src/migrations/*.ts"],
     migrationsTableName: "custom_migration_table",
   }),

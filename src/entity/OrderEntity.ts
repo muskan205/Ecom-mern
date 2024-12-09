@@ -19,6 +19,6 @@ export class Order {
   order_date: Date | undefined;
 
   @OneToMany(() => Customers, (customer) => customer.orders)
-  @JoinColumn({name:'customer_id'})
+  @JoinColumn({ name: "customer_id" })
   customer!: Customers;
 }
