@@ -1,7 +1,6 @@
 // CommonJS style
 const { DataSource } = require("typeorm");
-const { UserNew } = require('./../../entity/User');
-const { Student } = require("./../../entity/Student");
+
 
 module.exports = {
   AppDataSource: new DataSource({
@@ -10,7 +9,7 @@ module.exports = {
     port: 5432,
     username: "postgres",
     password: "geitpl",
-    database: "muskan_test",
+    database: "muskan_eommerce",
     synchronize: false,
     entities: ["src/entity/*.ts"],
     migrations: ["src/infra/db/migrations/*.ts"],

@@ -1,19 +1,59 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  JoinColumn,
+  OneToOne,
+} from "typeorm";
+import { Seller } from "./Seller";
+// import { Seller } from "./Seller";
 
-@Entity("muskan_new1")
-export class UserNew {
+@Entity("user1")
+export class User {
   @PrimaryGeneratedColumn()
   id: number | undefined;
 
   @Column("text")
-  firstName!: string;
+  username!: string | undefined;
 
-  @Column("text")
-  lastName!: string;
+  @Column("varchar", { unique: true, nullable: false })
+  email!: string | undefined;
 
-  @Column({ type: "text", default: "default" })
-  description!: string;
+  @Column({ type: "enum", enum: ["admin", "seller", "user"] })
+  role?: "admin" | "seller" | "user" | undefined;
 
-  @Column({ type: "boolean", nullable: false, default: false })
-  active: boolean = false;
+  @Column({ type: "boolean", nullable: false, default: true })
+  active: boolean = true;
+
+  @Column({ type: "varchar", length: 255 })
+  password!: string;
+
+  @Column({ type: "text", nullable: true })
+  otp?: string | undefined;
+
+  @Column({ type: "timestamp", nullable: true })
+  otpExpires?: Date | undefined;
+
+  @Column({ type: "timestamp", nullable: true })
+  lastOtpSentAt?: Date | null | undefined;
+
+
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  accessToken?: string | undefined;
+
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  refreshToken?: string | undefined;
+
+  //seller id act as a foregin key that refrend the seller table or entity
+  @Column({ type: "int", nullable: true })
+  sellerId: number | null | undefined;
+
+  @OneToOne(() => Seller, (seller) => seller.user)
+  @JoinColumn()
+  seller: Seller | null | undefined;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
 }
