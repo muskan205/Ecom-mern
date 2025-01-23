@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express")); // Correct syntax for express
 const { AppDataSource } = require("../src/infra/db/data-source");
-const AuthRoutes_1 = __importDefault(require("../src/modules/user/routes/AuthRoutes"));
-const admin_routes_1 = __importDefault(require("../src/modules/admin/routes/admin.routes"));
+const AuthRoutes_1 = __importDefault(require("./modules/user/routes/AuthRoutes"));
+const admin_routes_1 = __importDefault(require("./modules/admin/routes/admin.routes"));
 const cors_1 = __importDefault(require("cors"));
 require("reflect-metadata"); // Required for TypeORM decorators to work
 const app = (0, express_1.default)();

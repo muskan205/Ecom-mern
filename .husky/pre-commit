@@ -1,6 +1,6 @@
-# .husky/pre-commit
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+# # .husky/pre-commit
+# #!/bin/sh
+# . "$(dirname "$0")/_/husky.sh"
 
 
-# npm run migrate
+# # npm run migrate
