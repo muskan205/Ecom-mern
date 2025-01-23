@@ -54,7 +54,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const user = await authService.getUsers(req, res);
-    res.status(201).json({ message: "Forget password link", user });
+    // res.status(201).json({ message: "Forget password link", user });
   } catch (error: any) {
     res.status(400).json({ error });
   }
@@ -80,4 +80,14 @@ export const verifyOtp = async (req: Request, res: Response) => {
 };
 
 
+
+export const getUserByID = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const seller = await authService.getUserByID(id, req, res);
+    res.status(200).json({ message: "Seller retrieved successfully", seller });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
 

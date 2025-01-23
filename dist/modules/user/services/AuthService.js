@@ -100,22 +100,50 @@ class AuthService {
                 res.setHeader("X-Refresh-Token", refreshToken);
                 res.status(201).json(user);
             }
+            else if (role === "admin") {
+                const hashedPassword = yield (0, hash_utils_1.hashPassword)(password);
+                const user = this.userRepository.create({
+                    username,
+                    email,
+                    password: hashedPassword,
+                    role,
+                    sellerId,
+                });
+                yield this.userRepository.save(user);
+                const { accessToken, refreshToken } = this.tokenService.generateToken({
+                    userId: user.id,
+                    username: user.username,
+                    role: user.role,
+                    email: user.email,
+                });
+                user.passwordResetToken = null;
+                user.passwordResetExpires = null;
+                user.passwordResetToken = accessToken;
+                user.passwordResetExpires = new Date(Date.now() + 3600000);
+                yield this.userRepository.save(user);
+                res.setHeader("Authorization", `Bearer ${accessToken}`);
+                res.setHeader("X-Refresh-Token", refreshToken);
+                res.status(201).json(user);
+            }
         });
     }
     login(loginDto, req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, password } = loginDto;
             try {
+                console.log("Logging in user:", email);
                 if (!email || !password) {
                     throw new Error("Please fill in all details");
                 }
                 const user = yield this.userRepository.findOneBy({
                     email: email.toLowerCase(),
                 });
+                console.log("User found:", user);
                 if (!user) {
                     throw new Error("User not found");
                 }
                 const isPasswordMatch = yield (0, hash_utils_1.comparePasswords)(password, user.password);
+                console.log("Password match:", isPasswordMatch);
                 if (!isPasswordMatch) {
                     throw new Error("Invalid credentials");
                 }
@@ -123,8 +151,9 @@ class AuthService {
                     userId: user.id,
                     username: user.username,
                     role: user.role,
-                    email: user.eamil,
+                    email: user.email,
                 });
+                console.log("Token generated:", accessToken, refreshToken);
                 res.setHeader("Authorization", `Bearer ${accessToken}`);
                 res.setHeader("X-Refresh-Token", refreshToken);
                 res.status(200);
@@ -174,7 +203,7 @@ class AuthService {
                         email: seller.email,
                         role: seller.role,
                         shopName: seller.shopName,
-                        selllerId: seller.id
+                        selllerId: seller.id,
                     },
                     accessToken,
                     refreshToken,
@@ -260,9 +289,9 @@ class AuthService {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this.userRepository.find();
             if (user) {
-                res.status(201).json({ message: "user get", user });
+                res.status(201).json({ message: "users fetched successfully", user });
             }
-            res.status(200).json({ message: "Password reset link sent" });
+            res.status(200).json({ message: "Users not exists" });
         });
     }
     resetPassword(req, res) {
@@ -288,6 +317,18 @@ class AuthService {
                 console.error("Token verification failed:", error);
                 return res.status(500).json({ message: "Something went wrong" });
             }
+        });
+    }
+    getUserByID(id, req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.userRepository.findOneBy({ id });
+            console.log("user-by-id", user);
+            if (user) {
+                res
+                    .status(201)
+                    .json({ message: `Got the user with this id ${id}`, user });
+            }
+            res.status(200).json({ message: "User not found" });
         });
     }
 }
