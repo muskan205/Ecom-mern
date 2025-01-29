@@ -27,7 +27,7 @@ export const deleteSeller = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const seller = await authService.deleteSeller(id, req, res);
-    res.status(200).json({ message: "Seller  successfully", seller });
+    res.status(200).json({ message: "Seller deleted successfully", seller });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
@@ -35,7 +35,15 @@ export const deleteSeller = async (req: Request, res: Response) => {
 export const getAllSeller = async (req: Request, res: Response) => {
   try {
     const seller = await authService.getAllSeller(req, res);
-    res.status(200).json({ message: "Seller  successfully", seller });
+    res.status(200).json({ message: "Seller retrieved successfully", seller });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+export const searchSeller = async (req: Request, res: Response) => {
+  try {
+    const seller = await authService.searchSeller(req, res);
+    res.status(200).json({ message: "Seller fetched successfully", seller });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

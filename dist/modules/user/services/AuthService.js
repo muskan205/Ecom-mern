@@ -196,7 +196,6 @@ class AuthService {
                 res.setHeader("X-Refresh-Token", refreshToken);
                 // Send success response
                 return res.status(200).json({
-                    message: "Login successful",
                     seller: {
                         id: seller.id,
                         username: seller.username,
@@ -294,6 +293,18 @@ class AuthService {
             res.status(200).json({ message: "Users not exists" });
         });
     }
+    getUserByID(id, req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.userRepository.findOneBy({ id });
+            console.log("user-by-id", user);
+            if (user) {
+                res
+                    .status(201)
+                    .json({ message: `Got the user with this id ${id}`, user });
+            }
+            res.status(200).json({ message: "User not found" });
+        });
+    }
     resetPassword(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, password, confirmPassword } = req.body;
@@ -317,18 +328,6 @@ class AuthService {
                 console.error("Token verification failed:", error);
                 return res.status(500).json({ message: "Something went wrong" });
             }
-        });
-    }
-    getUserByID(id, req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.userRepository.findOneBy({ id });
-            console.log("user-by-id", user);
-            if (user) {
-                res
-                    .status(201)
-                    .json({ message: `Got the user with this id ${id}`, user });
-            }
-            res.status(200).json({ message: "User not found" });
         });
     }
 }

@@ -3,6 +3,8 @@ const { AppDataSource } = require("../../../infra/db/data-source");
 
 import { Seller } from "../../../entity/Seller";
 import { UpdateSellerDto } from "../dto/update.seller.dto";
+import { ILike } from "typeorm";
+import { paginate } from "../../../infra/utils/pagination";
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -31,10 +33,7 @@ export class AuthService {
 
       await this.sellerRepository.save(seller);
 
-      return res.status(200).json({
-        message: "Seller updated successfully",
-        seller,
-      });
+      return seller;
     } catch (error: any) {
       console.error("Error updating seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
@@ -51,10 +50,7 @@ export class AuthService {
           .json({ message: `Seller not found with id ${id}` });
       }
 
-      return res.status(200).json({
-        message: "Seller retrieved successfully",
-        seller,
-      });
+      return seller;
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
@@ -63,16 +59,26 @@ export class AuthService {
 
   async getAllSeller(req: Request, res: Response): Promise<any> {
     try {
-      const seller = await this.sellerRepository.find();
+      const page = parseInt(req.query.page as string) || 1; 
+      const limit = parseInt(req.query.limit as string) || 2; 
 
-      if (!seller) {
-        return res.status(404).json({ message: `Seller not found with id ` });
+      const { data: sellers, total, totalPages } = await paginate<Seller>({
+        page,
+        limit,
+        repository: this.sellerRepository, // Your seller repository
+      });
+  
+      if (sellers.length === 0) {
+        return res.status(404).json({ message: 'No sellers found' });
       }
 
-      return res.status(200).json({
-        message: "Sellers retrieved successfully",
-        seller,                                   
-      });
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        sellers
+      };
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
@@ -93,12 +99,47 @@ export class AuthService {
           .json({ message: `Seller not found with id ${id}` });
       }
 
-      return res.status(200).json({
-        message: "Seller deleted successfully",
-        seller,
-      });
+      return seller;
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+
+  async searchSeller(req: Request, res: Response): Promise<any> {
+    try {
+      const { query, username, email, shopName } = req.query;
+
+      if (!query && !username && !email && !shopName) {
+        return res
+          .status(400)
+          .json({ message: "At least one search parameter is required" });
+      }
+
+      const whereConditions: any = [];
+
+      if (query) {
+        whereConditions.push(
+          { username: ILike(`%${query}%`) },
+          { email: ILike(`%${query}%`) },
+          { shopName: ILike(`%${query}%`) }
+        );
+      } else {
+        // handling for sigle query
+        if (username)
+          whereConditions.push({ username: ILike(`%${username}%`) });
+        if (email) whereConditions.push({ email: ILike(`%${email}%`) });
+        if (shopName)
+          whereConditions.push({ shopName: ILike(`%${shopName}%`) });
+      }
+
+      const sellers = await this.sellerRepository.find({
+        where: whereConditions,
+      });
+
+      return sellers;
+    } catch (error: any) {
+      console.error("Error searching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
     }
   }

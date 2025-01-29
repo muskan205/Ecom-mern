@@ -7,7 +7,6 @@ import {
   VerifyOtpDto,
 } from "../dto/User.dto";
 
-
 const authService = new AuthService();
 
 export const register = async (req: Request, res: Response) => {
@@ -30,12 +29,11 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-
 export const sellerLogin = async (req: Request, res: Response) => {
   try {
     const loginDto: LoginUserDto = req.body;
     const user = await authService.sellerLogin(loginDto, req, res);
-    // res.status(201).json({ message: "User  successfully logged in", user });
+    res.status(201).json({ message: "Seller successfully logged in", user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
@@ -45,7 +43,12 @@ export const forgetPassword = async (req: Request, res: Response) => {
   try {
     const forgetPasswordDto: ForgetPasswordDto = req.body;
     const user = await authService.forgetPassword(forgetPasswordDto, req, res);
-    // res.status(201).json({ message: "Forget password link sent", user });
+    res
+      .status(201)
+      .json({
+        message: "OTP sent successfully. It will expire in 5 minutes",
+        user,
+      });
   } catch (error: any) {
     res.status(400).json({ error });
   }
@@ -75,11 +78,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
     const user = await authService.verifyOtp(verifyOtpDto, req, res);
     // res.status(201).json({ message: "Forget password link sent", user });
   } catch (error: any) {
-    res.status(400).json({ mesage:"Otp not found"});
+    res.status(400).json({ mesage: "Otp not found" });
   }
 };
-
-
 
 export const getUserByID = async (req: Request, res: Response) => {
   try {
@@ -90,4 +91,3 @@ export const getUserByID = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message });
   }
 };
-

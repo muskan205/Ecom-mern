@@ -38,7 +38,7 @@ const sellerLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const loginDto = req.body;
         const user = yield authService.sellerLogin(loginDto, req, res);
-        // res.status(201).json({ message: "User  successfully logged in", user });
+        res.status(201).json({ message: "Seller successfully logged in", user });
     }
     catch (error) {
         res.status(400).json({ error: error.message });
@@ -49,7 +49,12 @@ const forgetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const forgetPasswordDto = req.body;
         const user = yield authService.forgetPassword(forgetPasswordDto, req, res);
-        // res.status(201).json({ message: "Forget password link sent", user });
+        res
+            .status(201)
+            .json({
+            message: "OTP sent successfully. It will expire in 5 minutes",
+            user,
+        });
     }
     catch (error) {
         res.status(400).json({ error });

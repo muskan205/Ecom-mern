@@ -17,6 +17,7 @@ import { MailService } from "../../../infra/utils/sendMail";
 import { Seller } from "../../../entity/Seller";
 // import { decode } from "punycode"
 import * as bcrypt from "bcrypt";
+import { paginate } from "../../../infra/utils/pagination";
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -218,7 +219,6 @@ export class AuthService {
 
       // Send success response
       return res.status(200).json({
-        message: "Login successful",
         seller: {
           id: seller.id,
           username: seller.username,
@@ -326,13 +326,48 @@ export class AuthService {
   }
 
   async getUsers(req: Request, res: Response): Promise<any> {
-    const user = await this.userRepository.find();
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 2;
+      const {
+        data: users,
+        total,
+        totalPages,
+      } = await paginate<Seller>({
+        page,
+        limit,
+        repository: this.userRepository,
+      });
 
+      if (users.length === 0) {
+        return res.status(404).json({ message: "No users found" });
+      }
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        users,
+      };
+
+     
+    } catch (error: any) {
+      console.error("Error fetching seller:", error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+
+  async getUserByID(id: string, req: Request, res: Response): Promise<any> {
+    const user = await this.userRepository.findOneBy({ id });
+    console.log("user-by-id", user);
     if (user) {
-      res.status(201).json({ message: "users fetched successfully", user });
+      res
+        .status(201)
+        .json({ message: `Got the user with this id ${id}`, user });
     }
 
-    res.status(200).json({ message: "Users not exists" });
+    res.status(200).json({ message: "User not found" });
   }
 
   async resetPassword(req: Request, res: Response): Promise<any> {
@@ -359,18 +394,5 @@ export class AuthService {
       console.error("Token verification failed:", error);
       return res.status(500).json({ message: "Something went wrong" });
     }
-  }
-
-  async getUserByID(id:string,req: Request, res: Response): Promise<any> {
-  
-    const user = await this.userRepository.findOneBy({id });
-    console.log("user-by-id", user);
-    if (user) {
-      res
-        .status(201)
-        .json({ message: `Got the user with this id ${id}`, user });
-    }
-
-    res.status(200).json({ message: "User not found" });
   }
 }
