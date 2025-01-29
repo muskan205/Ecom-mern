@@ -29,3 +29,6 @@ npx husky-init
 1.install # npm install --save-dev prettier
 
 2.npm run format
+
+
+##how to push ur code

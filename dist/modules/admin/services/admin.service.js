@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const { AppDataSource } = require("../../../infra/db/data-source");
 const Seller_1 = require("../../../entity/Seller");
+const typeorm_1 = require("typeorm");
+const pagination_1 = require("../../../infra/utils/pagination");
 const dotenv = require("dotenv");
 dotenv.config();
 class AuthService {
@@ -32,10 +34,7 @@ class AuthService {
                 seller.shopName = shopName;
                 seller.username = username; // Update the username field
                 yield this.sellerRepository.save(seller);
-                return res.status(200).json({
-                    message: "Seller updated successfully",
-                    seller,
-                });
+                return seller;
             }
             catch (error) {
                 console.error("Error updating seller:", error.message);
@@ -52,10 +51,7 @@ class AuthService {
                         .status(404)
                         .json({ message: `Seller not found with id ${id}` });
                 }
-                return res.status(200).json({
-                    message: "Seller retrieved successfully",
-                    seller,
-                });
+                return seller;
             }
             catch (error) {
                 console.error("Error fetching seller:", error.message);
@@ -66,14 +62,23 @@ class AuthService {
     getAllSeller(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const seller = yield this.sellerRepository.find();
-                if (!seller) {
-                    return res.status(404).json({ message: `Seller not found with id ` });
-                }
-                return res.status(200).json({
-                    message: "Sellers retrieved successfully",
-                    seller,
+                const page = parseInt(req.query.page) || 1;
+                const limit = parseInt(req.query.limit) || 2;
+                const { data: sellers, total, totalPages } = yield (0, pagination_1.paginate)({
+                    page,
+                    limit,
+                    repository: this.sellerRepository, // Your seller repository
                 });
+                if (sellers.length === 0) {
+                    return res.status(404).json({ message: 'No sellers found' });
+                }
+                return {
+                    total,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(total / limit),
+                    sellers
+                };
             }
             catch (error) {
                 console.error("Error fetching seller:", error.message);
@@ -94,13 +99,43 @@ class AuthService {
                         .status(404)
                         .json({ message: `Seller not found with id ${id}` });
                 }
-                return res.status(200).json({
-                    message: "Seller deleted successfully",
-                    seller,
-                });
+                return seller;
             }
             catch (error) {
                 console.error("Error fetching seller:", error.message);
+                return res.status(500).json({ message: "Something went wrong" });
+            }
+        });
+    }
+    searchSeller(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { query, username, email, shopName } = req.query;
+                if (!query && !username && !email && !shopName) {
+                    return res
+                        .status(400)
+                        .json({ message: "At least one search parameter is required" });
+                }
+                const whereConditions = [];
+                if (query) {
+                    whereConditions.push({ username: (0, typeorm_1.ILike)(`%${query}%`) }, { email: (0, typeorm_1.ILike)(`%${query}%`) }, { shopName: (0, typeorm_1.ILike)(`%${query}%`) });
+                }
+                else {
+                    // handling for sigle query
+                    if (username)
+                        whereConditions.push({ username: (0, typeorm_1.ILike)(`%${username}%`) });
+                    if (email)
+                        whereConditions.push({ email: (0, typeorm_1.ILike)(`%${email}%`) });
+                    if (shopName)
+                        whereConditions.push({ shopName: (0, typeorm_1.ILike)(`%${shopName}%`) });
+                }
+                const sellers = yield this.sellerRepository.find({
+                    where: whereConditions,
+                });
+                return sellers;
+            }
+            catch (error) {
+                console.error("Error searching seller:", error.message);
                 return res.status(500).json({ message: "Something went wrong" });
             }
         });

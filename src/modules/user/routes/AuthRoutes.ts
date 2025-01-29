@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   forgetPassword,
+  getUserByID,
   getUsers,
   login,
   register,
@@ -20,5 +21,6 @@ router.get("/get/users", AuthorizeRoles(["admin","seller"]), getUsers);
 router.post("/seller/login", sellerLogin);
 router.post("/resetpassword",resetPassword)
 router.post("/verifyOtp",verifyOtp)
+router.get("/get-user-by-Id",getUserByID)
 
 export default router;

@@ -15,4 +15,5 @@ router.get("/get/users", (0, auth_middleware_1.default)(["admin", "seller"]), Au
 router.post("/seller/login", AuthController_1.sellerLogin);
 router.post("/resetpassword", AuthController_1.resetPassword);
 router.post("/verifyOtp", AuthController_1.verifyOtp);
+router.get("/get-user-by-Id", AuthController_1.getUserByID);
 exports.default = router;

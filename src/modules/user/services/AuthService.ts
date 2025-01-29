@@ -17,6 +17,7 @@ import { MailService } from "../../../infra/utils/sendMail";
 import { Seller } from "../../../entity/Seller";
 // import { decode } from "punycode"
 import * as bcrypt from "bcrypt";
+import { paginate } from "../../../infra/utils/pagination";
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -60,7 +61,7 @@ export class AuthService {
         username: seller.username,
         email: seller.email,
       });
-   
+
       await this.userRepository.save(seller);
 
       res.setHeader("Authorization", `Bearer ${accessToken}`);
@@ -68,6 +69,36 @@ export class AuthService {
       res.status(201).json(seller);
     }
     if (role === "user") {
+      const hashedPassword = await hashPassword(password);
+      const user = this.userRepository.create({
+        username,
+        email,
+        password: hashedPassword,
+        role,
+        sellerId,
+      });
+
+      await this.userRepository.save(user);
+
+      const { accessToken, refreshToken } = this.tokenService.generateToken({
+        userId: user.id,
+        username: user.username,
+        role: user.role,
+        email: user.email,
+      });
+
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+
+      user.passwordResetToken = accessToken;
+      user.passwordResetExpires = new Date(Date.now() + 3600000);
+
+      await this.userRepository.save(user);
+
+      res.setHeader("Authorization", `Bearer ${accessToken}`);
+      res.setHeader("X-Refresh-Token", refreshToken);
+      res.status(201).json(user);
+    } else if (role === "admin") {
       const hashedPassword = await hashPassword(password);
       const user = this.userRepository.create({
         username,
@@ -108,6 +139,8 @@ export class AuthService {
     const { email, password } = loginDto;
 
     try {
+      console.log("Logging in user:", email);
+
       if (!email || !password) {
         throw new Error("Please fill in all details");
       }
@@ -115,12 +148,15 @@ export class AuthService {
       const user = await this.userRepository.findOneBy({
         email: email.toLowerCase(),
       });
+      console.log("User found:", user);
+
       if (!user) {
         throw new Error("User not found");
       }
 
-
       const isPasswordMatch = await comparePasswords(password, user.password);
+      console.log("Password match:", isPasswordMatch);
+
       if (!isPasswordMatch) {
         throw new Error("Invalid credentials");
       }
@@ -129,8 +165,9 @@ export class AuthService {
         userId: user.id,
         username: user.username,
         role: user.role,
-        email: user.eamil,
+        email: user.email,
       });
+      console.log("Token generated:", accessToken, refreshToken);
 
       res.setHeader("Authorization", `Bearer ${accessToken}`);
       res.setHeader("X-Refresh-Token", refreshToken);
@@ -141,30 +178,33 @@ export class AuthService {
       return res.status(400);
     }
   }
-
-  async sellerLogin(loginDto: LoginUserDto, req: Request, res: Response): Promise<any> {
+  async sellerLogin(
+    loginDto: LoginUserDto,
+    req: Request,
+    res: Response
+  ): Promise<any> {
     const { email, password } = loginDto;
-  
+
     try {
       if (!email || !password) {
         throw new Error("Please provide both email and password.");
       }
-  
+
       // Fetch seller data
       const seller = await this.sellerRepository.findOneBy({
         email: email.toLowerCase(),
       });
-  
+
       if (!seller) {
         throw new Error("Seller not found.");
       }
-  
+
       // Verify password
       const isPasswordMatch = await comparePasswords(password, seller.password);
       if (!isPasswordMatch) {
         throw new Error("Invalid credentials.");
       }
-  
+
       // Generate tokens
       const { accessToken, refreshToken } = this.tokenService.generateToken({
         userId: seller.id,
@@ -172,31 +212,30 @@ export class AuthService {
         role: seller.role,
         email: seller.email,
       });
-  
+
       // Set response headers for tokens
       res.setHeader("Authorization", `Bearer ${accessToken}`);
       res.setHeader("X-Refresh-Token", refreshToken);
-  
+
       // Send success response
       return res.status(200).json({
-        message: "Login successful",
         seller: {
           id: seller.id,
           username: seller.username,
           email: seller.email,
           role: seller.role,
           shopName: seller.shopName,
-          selllerId:seller.id
+          selllerId: seller.id,
         },
         accessToken,
         refreshToken,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Seller login error:", error);
       return res.status(400).json({ message: error.message });
     }
   }
-  
+
   async forgetPassword(
     forgetPasswordDto: ForgetPasswordDto,
     req: Request,
@@ -287,13 +326,48 @@ export class AuthService {
   }
 
   async getUsers(req: Request, res: Response): Promise<any> {
-    const user = await this.userRepository.find();
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 2;
+      const {
+        data: users,
+        total,
+        totalPages,
+      } = await paginate<Seller>({
+        page,
+        limit,
+        repository: this.userRepository,
+      });
 
+      if (users.length === 0) {
+        return res.status(404).json({ message: "No users found" });
+      }
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        users,
+      };
+
+     
+    } catch (error: any) {
+      console.error("Error fetching seller:", error.message);
+      return res.status(500).json({ message: "Something went wrong" });
+    }
+  }
+
+  async getUserByID(id: string, req: Request, res: Response): Promise<any> {
+    const user = await this.userRepository.findOneBy({ id });
+    console.log("user-by-id", user);
     if (user) {
-      res.status(201).json({ message: "user get", user });
+      res
+        .status(201)
+        .json({ message: `Got the user with this id ${id}`, user });
     }
 
-    res.status(200).json({ message: "Password reset link sent" });
+    res.status(200).json({ message: "User not found" });
   }
 
   async resetPassword(req: Request, res: Response): Promise<any> {
