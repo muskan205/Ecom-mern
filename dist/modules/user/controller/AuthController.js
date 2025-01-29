@@ -16,7 +16,7 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const registerDto = req.body;
         const user = yield authService.register(registerDto, req, res);
-        // res.status(201).json({ message: "User registered successfully", user });
+        res.status(201).json({ message: "User registered successfully", user });
     }
     catch (error) {
         res.status(400).json({ error: error.message });

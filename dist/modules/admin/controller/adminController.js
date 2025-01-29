@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchSeller = exports.getAllSeller = exports.deleteSeller = exports.getSellers = exports.updateSeller = void 0;
 const admin_service_1 = require("../services/admin.service");
-const authService = new admin_service_1.AuthService();
+const authService = new admin_service_1.AdminService();
 const updateSeller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const updateSeller = req.body;

@@ -9,14 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthService = void 0;
+exports.AdminService = void 0;
 const { AppDataSource } = require("../../../infra/db/data-source");
 const Seller_1 = require("../../../entity/Seller");
 const typeorm_1 = require("typeorm");
 const pagination_1 = require("../../../infra/utils/pagination");
 const dotenv = require("dotenv");
 dotenv.config();
-class AuthService {
+class AdminService {
     constructor() {
         this.sellerRepository = AppDataSource.getRepository(Seller_1.Seller);
     }
@@ -141,4 +141,4 @@ class AuthService {
         });
     }
 }
-exports.AuthService = AuthService;
+exports.AdminService = AdminService;

@@ -8,7 +8,7 @@ import { paginate } from "../../../infra/utils/pagination";
 const dotenv = require("dotenv");
 dotenv.config();
 
-export class AuthService {
+export class AdminService {
   private sellerRepository = AppDataSource.getRepository(Seller);
 
   async updateSeller(

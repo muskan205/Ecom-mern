@@ -53,7 +53,7 @@ export class AuthService {
       });
 
       await this.sellerRepository.save(seller);
-      res.status(200).json("seller created sucessfully");
+      res.status(200).json({seller});
 
       const { accessToken, refreshToken } = this.tokenService.generateToken({
         userId: seller.id,
@@ -79,6 +79,7 @@ export class AuthService {
       });
 
       await this.userRepository.save(user);
+      res.status(200).json({user});
 
       const { accessToken, refreshToken } = this.tokenService.generateToken({
         userId: user.id,
@@ -349,9 +350,7 @@ export class AuthService {
         limit,
         totalPages: Math.ceil(total / limit),
         users,
-      };
-
-     
+      };   
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { AuthService } from "../services/admin.service";
+import { AdminService } from "../services/admin.service";
 import { UpdateSellerDto } from "../dto/update.seller.dto";
 
-const authService = new AuthService();
+const authService = new AdminService();
 
 export const updateSeller = async (req: Request, res: Response) => {
   try {

@@ -13,7 +13,7 @@ export const register = async (req: Request, res: Response) => {
   try {
     const registerDto: RegisterUserDto = req.body;
     const user = await authService.register(registerDto, req, res);
-    // res.status(201).json({ message: "User registered successfully", user });
+    res.status(201).json({ message: "User registered successfully", user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

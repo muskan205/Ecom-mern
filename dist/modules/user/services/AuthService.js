@@ -41,6 +41,7 @@ const sendMail_1 = require("../../../infra/utils/sendMail");
 const Seller_1 = require("../../../entity/Seller");
 // import { decode } from "punycode"
 const bcrypt = __importStar(require("bcrypt"));
+const pagination_1 = require("../../../infra/utils/pagination");
 const dotenv = require("dotenv");
 dotenv.config();
 class AuthService {
@@ -63,7 +64,7 @@ class AuthService {
                     password: hashedPassword,
                 });
                 yield this.sellerRepository.save(seller);
-                res.status(200).json("seller created sucessfully");
+                res.status(200).json({ seller });
                 const { accessToken, refreshToken } = this.tokenService.generateToken({
                     userId: seller.id,
                     role: role,
@@ -85,6 +86,7 @@ class AuthService {
                     sellerId,
                 });
                 yield this.userRepository.save(user);
+                res.status(200).json({ user });
                 const { accessToken, refreshToken } = this.tokenService.generateToken({
                     userId: user.id,
                     username: user.username,
@@ -286,11 +288,29 @@ class AuthService {
     }
     getUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.userRepository.find();
-            if (user) {
-                res.status(201).json({ message: "users fetched successfully", user });
+            try {
+                const page = parseInt(req.query.page) || 1;
+                const limit = parseInt(req.query.limit) || 2;
+                const { data: users, total, totalPages, } = yield (0, pagination_1.paginate)({
+                    page,
+                    limit,
+                    repository: this.userRepository,
+                });
+                if (users.length === 0) {
+                    return res.status(404).json({ message: "No users found" });
+                }
+                return {
+                    total,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(total / limit),
+                    users,
+                };
             }
-            res.status(200).json({ message: "Users not exists" });
+            catch (error) {
+                console.error("Error fetching seller:", error.message);
+                return res.status(500).json({ message: "Something went wrong" });
+            }
         });
     }
     getUserByID(id, req, res) {
