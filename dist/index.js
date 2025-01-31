@@ -13,6 +13,8 @@ require("reflect-metadata"); // Required for TypeORM decorators to work
 const app = (0, express_1.default)();
 const port = 3004;
 const dotenv = require("dotenv");
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
 dotenv.config();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -26,7 +28,6 @@ AppDataSource.initialize()
     // Start the Express server
     app.listen(port, () => {
         console.log(`Server is running on http://localhost:${port}`);
-        console.log("************", process.env.Secret_Key);
     });
 })
     .catch((error) => {

@@ -19,7 +19,7 @@ export class User {
   @Column("varchar", { unique: true, nullable: false })
   email!: string | undefined;
 
-  @Column({ type: "enum", enum: ["admin", "seller", "user"] })
+  @Column({ type: "enum", enum: ["admin", "seller", "user"] ,nullable:true})
   role?: "admin" | "seller" | "user" | undefined;
 
   @Column({ type: "boolean", nullable: false, default: true })

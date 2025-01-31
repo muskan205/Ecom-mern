@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByID = exports.verifyOtp = exports.resetPassword = exports.getUsers = exports.forgetPassword = exports.sellerLogin = exports.login = exports.register = void 0;
+exports.test_login = exports.test_register = exports.getUserByID = exports.verifyOtp = exports.resetPassword = exports.getUsers = exports.forgetPassword = exports.login = exports.register = void 0;
 const AuthService_1 = require("../services/AuthService");
 const authService = new AuthService_1.AuthService();
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,17 +34,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
-const sellerLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const loginDto = req.body;
-        const user = yield authService.sellerLogin(loginDto, req, res);
-        res.status(201).json({ message: "Seller successfully logged in", user });
-    }
-    catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-exports.sellerLogin = sellerLogin;
 const forgetPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const forgetPasswordDto = req.body;
@@ -103,3 +92,25 @@ const getUserByID = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getUserByID = getUserByID;
+const test_register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const registerDto = req.body;
+        const user = yield authService.test_register(registerDto, req, res);
+        res.status(201).json({ message: "User registered successfully", user });
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+exports.test_register = test_register;
+const test_login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const loginDto = req.body;
+        const user = yield authService.test_login(loginDto, req, res);
+        // res.status(201).json({ message: "User  successfully logged in", user });
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+exports.test_login = test_login;

@@ -4,6 +4,7 @@ node_modules/
 dist/
 .env/
 Readme.md/
+src\infra\db
 
 
 

@@ -8,6 +8,8 @@ import "reflect-metadata"; // Required for TypeORM decorators to work
 const app = express();
 const port = 3004;
 const dotenv =require("dotenv")
+var cookieParser = require('cookie-parser')
+app.use(cookieParser())
 
 dotenv.config()
 
@@ -26,7 +28,7 @@ AppDataSource.initialize()
     // Start the Express server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
-      console.log("************",process.env.Secret_Key)
+     
     });
   })
   .catch((error: any) => {

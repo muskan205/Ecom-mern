@@ -22,7 +22,7 @@ export class Seller {
   })
   shopName?: string;
 
-  @Column("varchar", { length: 255,nullable: false })
+  @Column("varchar", { length: 255,nullable: true })
   email: string | undefined;
 
   @Column({
@@ -44,5 +44,11 @@ export class Seller {
   @JoinColumn()
   user: User | undefined;
 
- 
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  accessToken?: string | undefined;
+
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  refreshToken?: string | undefined;
 }
