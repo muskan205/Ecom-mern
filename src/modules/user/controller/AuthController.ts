@@ -9,38 +9,14 @@ import {
 
 const authService = new AuthService();
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const registerDto: RegisterUserDto = req.body;
-    const user = await authService.register(registerDto, req, res);
-    res.status(201).json({ message: "User registered successfully", user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const login = async (req: Request, res: Response) => {
-  try {
-    const loginDto: LoginUserDto = req.body;
-    const user = await authService.login(loginDto, req, res);
-    // res.status(201).json({ message: "User  successfully logged in", user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-
-
 export const forgetPassword = async (req: Request, res: Response) => {
   try {
     const forgetPasswordDto: ForgetPasswordDto = req.body;
     const user = await authService.forgetPassword(forgetPasswordDto, req, res);
-    res
-      .status(201)
-      .json({
-        message: "OTP sent successfully. It will expire in 5 minutes",
-        user,
-      });
+    res.status(201).json({
+      message: "OTP sent successfully. It will expire in 5 minutes",
+      user,
+    });
   } catch (error: any) {
     res.status(400).json({ error });
   }
@@ -83,20 +59,20 @@ export const getUserByID = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message });
   }
 };
-export const test_register = async (req: Request, res: Response) => {
+export const registration = async (req: Request, res: Response) => {
   try {
     const registerDto: RegisterUserDto = req.body;
-    const user = await authService.test_register(registerDto, req, res);
+    const user = await authService.registration(registerDto, req, res);
     res.status(201).json({ message: "User registered successfully", user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
 };
 
-export const test_login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const loginDto: LoginUserDto = req.body;
-    const user = await authService.test_login(loginDto, req, res);
+    const user = await authService.login(loginDto, req, res);
     // res.status(201).json({ message: "User  successfully logged in", user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });

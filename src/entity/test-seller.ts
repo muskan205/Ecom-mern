@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 
 import { Account } from "./Account.entity";
+import { Seller_Shop } from "../modules/seller/entity/shop.entity";
 
 @Entity("test-seller1")
 export class test_Seller {
@@ -29,4 +30,7 @@ export class test_Seller {
   @OneToOne(() => Account, (account) => account.seller, { nullable: true })
   @JoinColumn({ name: "accountId" })
   account: Account | undefined;
+
+  @OneToOne(()=>Seller_Shop,(shop)=>shop.seller,{nullable:true})
+  shop:Seller_Shop |undefined
 }

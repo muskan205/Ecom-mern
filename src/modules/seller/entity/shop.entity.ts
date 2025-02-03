@@ -10,6 +10,7 @@ import {
 import { Product } from "./shopEntity/product.entity";
 import { Product_Category } from "./shopEntity/category.entity";
 import { Seller } from "../../../entity/Seller";
+import { test_Seller } from "../../../entity/test-seller";
 
 @Entity("seller_shop")
 export class Seller_Shop {
@@ -35,12 +36,9 @@ export class Seller_Shop {
   @JoinColumn({ name: "categoryId" })
   category: Product_Category | undefined;
 
-  @OneToOne(() => Seller, (seller) => seller.id)
-  @JoinColumn({ name: "ownerId" })
-  seller: Seller | undefined;
+  @OneToOne(() => test_Seller, (seller) => seller.shop,{nullable:true})
+  seller: test_Seller | undefined;
 
   @OneToMany(() => Product, (product) => product.shop)
   products?: Product[] | undefined;
-
-  
 }

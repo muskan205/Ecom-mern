@@ -30,5 +30,4 @@ npx husky-init
 
 2.npm run format
 
-
 ##how to push ur code

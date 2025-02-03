@@ -2,11 +2,12 @@ import { CreateShopDto } from "../dto/create.shop.dto";
 import { Seller_Shop } from "../entity/shop.entity";
 import { Seller } from "../../../entity/Seller";
 import { paginate } from "../../../infra/utils/pagination";
+import { test_Seller } from "../../../entity/test-seller";
 const { AppDataSource } = require("../../../infra/db/data-source");
 
 export class SellerService {
   private shopRepository = AppDataSource.getRepository(Seller_Shop);
-  private sellerRepository = AppDataSource.getRepository(Seller);
+  private sellerRepository = AppDataSource.getRepository(test_Seller);
 
   async createShop(
     shopDto: CreateShopDto,
