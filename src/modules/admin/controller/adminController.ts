@@ -13,10 +13,10 @@ export const updateSeller = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message });
   }
 };
-export const getSellers = async (req: Request, res: Response) => {
+export const getSellerByID = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const seller = await authService.getSeller(id, req, res);
+    const seller = await authService.getSellerById(id, req, res);
     res.status(200).json({ message: "Seller retrieved successfully", seller });
   } catch (error: any) {
     res.status(400).json({ error: error.message });

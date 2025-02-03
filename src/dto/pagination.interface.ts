@@ -4,6 +4,7 @@ export interface PaginationOptions {
     page: number;
     limit: number;
     repository: any; 
+  filters?:{} |any
   }
   
   export interface PaginationResult<T> {

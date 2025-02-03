@@ -1,56 +1,79 @@
 import { Request, Response } from "express";
 const { AppDataSource } = require("../../../infra/db/data-source");
 
-import { Seller } from "../../../entity/Seller";
+
 import { UpdateSellerDto } from "../dto/update.seller.dto";
 import { ILike } from "typeorm";
 import { paginate } from "../../../infra/utils/pagination";
+import { Account } from "../../../entity/Account.entity";
+import { test_Seller } from "../../../entity/test-seller";
 const dotenv = require("dotenv");
 dotenv.config();
 
 export class AdminService {
-  private sellerRepository = AppDataSource.getRepository(Seller);
+  private sellerRepository = AppDataSource.getRepository(test_Seller);
+  private accountRepository = AppDataSource.getRepository(Account);
 
   async updateSeller(
     updateSellerDto: UpdateSellerDto,
     req: Request,
     res: Response
   ): Promise<any> {
-    const { id, username, email, shopName } = req.body;
-
     try {
-      const seller = await this.sellerRepository.findOne({ where: { id } });
-
-      if (!seller) {
+      const { id, username, email, shopName } = updateSellerDto;
+  
+      const account = await this.accountRepository.findOne({
+        where: { id },
+        relations: ["seller"],
+      });
+  
+      if (!account) {
         return res
           .status(404)
-          .json({ message: `User not found with id ${id}` });
+          .json({ message: `Account not found with id ${id}` });
       }
-
-      seller.email = email;
-      seller.shopName = shopName;
-      seller.username = username; // Update the username field
-
-      await this.sellerRepository.save(seller);
-
-      return seller;
+  
+      if (!account.seller) {
+        return res
+          .status(404)
+          .json({ message: `Seller not found for account id ${id}` });
+      }
+  
+      account.email = email;
+      account.seller.username = username;
+      account.seller.shopName = shopName;
+  
+      await this.accountRepository.save(account);
+  
+      return res.status(200).json({
+        message: "Seller updated successfully",
+        account,
+        seller: account.seller,
+      });
     } catch (error: any) {
       console.error("Error updating seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
     }
   }
 
-  async getSeller(id: string, req: Request, res: Response): Promise<any> {
+  async getSellerById(id: string, req: Request, res: Response): Promise<any> {
     try {
-      const seller = await this.sellerRepository.findOne({ where: { id } });
+      const sellerId = id; // Ensure ID is treated as a string
+      console.log("Requested Seller ID:", sellerId);
 
-      if (!seller) {
-        return res
-          .status(404)
-          .json({ message: `Seller not found with id ${id}` });
-      }
+      // Find the account by `accountId`, not `id`
+      const user = await this.accountRepository.findOne({
+        where: { id: sellerId },
+        relations: ["seller"],
+        cache: false,
+      });
 
-      return seller;
+      console.log("Seller Data:", user);
+      return {
+        seller: user.seller,
+        email: user.email,
+        role: user.role,
+      };
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
@@ -59,26 +82,16 @@ export class AdminService {
 
   async getAllSeller(req: Request, res: Response): Promise<any> {
     try {
-      const page = parseInt(req.query.page as string) || 1; 
-      const limit = parseInt(req.query.limit as string) || 2; 
-
-      const { data: sellers, total, totalPages } = await paginate<Seller>({
-        page,
-        limit,
-        repository: this.sellerRepository, // Your seller repository
+      const users = await this.accountRepository.find({
+        relations: ["seller"],
       });
-  
-      if (sellers.length === 0) {
-        return res.status(404).json({ message: 'No sellers found' });
-      }
 
-      return {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        sellers
-      };
+      // Map and filter out null sellers
+      const sellers = users
+        .map((user: { seller: any }) => user.seller) 
+        .filter((seller: any) => seller !== null); 
+
+      res.status(200).json(sellers);
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
       return res.status(500).json({ message: "Something went wrong" });
@@ -87,18 +100,19 @@ export class AdminService {
 
   async deleteSeller(id: string, req: Request, res: Response): Promise<any> {
     try {
-      const seller = await this.sellerRepository
-        .createQueryBuilder("seller")
-        .delete()
-        .where("seller.id = :id", { id })
-        .execute();
+      const seller = await this.accountRepository.findOne({
+        where: { id },
+        relations: ["seller"],
+      });
 
       if (!seller) {
         return res
           .status(404)
           .json({ message: `Seller not found with id ${id}` });
       }
+      await this.accountRepository.delete(id);
 
+      await this.sellerRepository.delete({ accountId: id });
       return seller;
     } catch (error: any) {
       console.error("Error fetching seller:", error.message);
@@ -108,9 +122,9 @@ export class AdminService {
 
   async searchSeller(req: Request, res: Response): Promise<any> {
     try {
-      const { query, username, email, shopName } = req.query;
+      const { query, username, shopName } = req.query;
 
-      if (!query && !username && !email && !shopName) {
+      if (!query && !username  && !shopName) {
         return res
           .status(400)
           .json({ message: "At least one search parameter is required" });
@@ -128,7 +142,7 @@ export class AdminService {
         // handling for sigle query
         if (username)
           whereConditions.push({ username: ILike(`%${username}%`) });
-        if (email) whereConditions.push({ email: ILike(`%${email}%`) });
+        
         if (shopName)
           whereConditions.push({ shopName: ILike(`%${shopName}%`) });
       }

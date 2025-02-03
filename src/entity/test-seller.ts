@@ -28,7 +28,7 @@ export class test_Seller {
   accountId: number | undefined;
 
   @OneToOne(() => Account, (account) => account.seller, { nullable: true })
-  @JoinColumn({ name: "accountId" })
+  @JoinColumn({ name: "sellerAccount" })
   account: Account | undefined;
 
   @OneToOne(()=>Seller_Shop,(shop)=>shop.seller,{nullable:true})

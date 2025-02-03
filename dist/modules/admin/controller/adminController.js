@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchSeller = exports.getAllSeller = exports.deleteSeller = exports.getSellers = exports.updateSeller = void 0;
+exports.searchSeller = exports.getAllSeller = exports.deleteSeller = exports.getSellerByID = exports.updateSeller = void 0;
 const admin_service_1 = require("../services/admin.service");
 const authService = new admin_service_1.AdminService();
 const updateSeller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -23,17 +23,17 @@ const updateSeller = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.updateSeller = updateSeller;
-const getSellers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getSellerByID = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const seller = yield authService.getSeller(id, req, res);
+        const seller = yield authService.getSellerById(id, req, res);
         res.status(200).json({ message: "Seller retrieved successfully", seller });
     }
     catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
-exports.getSellers = getSellers;
+exports.getSellerByID = getSellerByID;
 const deleteSeller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
