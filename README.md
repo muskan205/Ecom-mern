@@ -118,6 +118,3 @@ npx husky-init
 
 ### code format
 1.install # npm install --save-dev prettier
-
-2.npm run format
-

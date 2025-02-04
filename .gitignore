@@ -7,9 +7,9 @@ Readme.md/
 src\infra\db
 src/infra/db/migrations
 
+dist
 
-
-
+.env
 
 
 
