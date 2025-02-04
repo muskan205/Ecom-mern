@@ -9,7 +9,7 @@ src/infra/db/migrations
 
 dist
 
-
+.env
 
 
 
