@@ -37,6 +37,7 @@ export class Seller_Shop {
   category: Product_Category | undefined;
 
   @OneToOne(() => test_Seller, (seller) => seller.shop,{nullable:true})
+  @JoinColumn({name:"sellerId"})
   seller: test_Seller | undefined;
 
   @OneToMany(() => Product, (product) => product.shop)

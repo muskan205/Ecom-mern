@@ -28,5 +28,11 @@ export class CreateShopDto {
   @IsString()
   email: string | undefined;
 
+  @IsString()
+  sellerId:string |undefined
+
+  @IsString()
+  categoryId:string |undefined
+
   
 }
