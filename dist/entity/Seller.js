@@ -23,15 +23,23 @@ __decorate([
     __metadata("design:type", Object)
 ], Seller.prototype, "username", void 0);
 __decorate([
-    (0, typeorm_1.Column)("varchar", { length: 255 }),
-    __metadata("design:type", Object)
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true
+    }),
+    __metadata("design:type", String)
 ], Seller.prototype, "shopName", void 0);
 __decorate([
-    (0, typeorm_1.Column)("varchar", { length: 255 }),
+    (0, typeorm_1.Column)("varchar", { length: 255, nullable: true }),
     __metadata("design:type", Object)
 ], Seller.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true
+    }),
     __metadata("design:type", String)
 ], Seller.prototype, "password", void 0);
 __decorate([
@@ -47,6 +55,18 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Object)
 ], Seller.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "text", nullable: true })
+    // passwordResetToken!: string;
+    ,
+    __metadata("design:type", Object)
+], Seller.prototype, "accessToken", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "text", nullable: true })
+    // passwordResetToken!: string;
+    ,
+    __metadata("design:type", Object)
+], Seller.prototype, "refreshToken", void 0);
 Seller = __decorate([
     (0, typeorm_1.Entity)("seller")
 ], Seller);

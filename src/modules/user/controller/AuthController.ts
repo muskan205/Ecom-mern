@@ -9,46 +9,14 @@ import {
 
 const authService = new AuthService();
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const registerDto: RegisterUserDto = req.body;
-    const user = await authService.register(registerDto, req, res);
-    // res.status(201).json({ message: "User registered successfully", user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const login = async (req: Request, res: Response) => {
-  try {
-    const loginDto: LoginUserDto = req.body;
-    const user = await authService.login(loginDto, req, res);
-    // res.status(201).json({ message: "User  successfully logged in", user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-export const sellerLogin = async (req: Request, res: Response) => {
-  try {
-    const loginDto: LoginUserDto = req.body;
-    const user = await authService.sellerLogin(loginDto, req, res);
-    res.status(201).json({ message: "Seller successfully logged in", user });
-  } catch (error: any) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
 export const forgetPassword = async (req: Request, res: Response) => {
   try {
     const forgetPasswordDto: ForgetPasswordDto = req.body;
     const user = await authService.forgetPassword(forgetPasswordDto, req, res);
-    res
-      .status(201)
-      .json({
-        message: "OTP sent successfully. It will expire in 5 minutes",
-        user,
-      });
+    res.status(201).json({
+      message: "OTP sent successfully. It will expire in 5 minutes",
+      user,
+    });
   } catch (error: any) {
     res.status(400).json({ error });
   }
@@ -87,6 +55,25 @@ export const getUserByID = async (req: Request, res: Response) => {
     const { id } = req.params;
     const seller = await authService.getUserByID(id, req, res);
     res.status(200).json({ message: "Seller retrieved successfully", seller });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+export const registration = async (req: Request, res: Response) => {
+  try {
+    const registerDto: RegisterUserDto = req.body;
+    const user = await authService.registration(registerDto, req, res);
+    res.status(201).json({ message: "User registered successfully", user });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const loginDto: LoginUserDto = req.body;
+    const user = await authService.login(loginDto, req, res);
+    // res.status(201).json({ message: "User  successfully logged in", user });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }

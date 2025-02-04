@@ -15,14 +15,22 @@ export class Seller {
   @Column("text")
   username!: string | undefined;
   
-  @Column("varchar", { length: 255 })
-  shopName?: string | undefined;
+  @Column({
+    type: "varchar",
+    length: 255,
+    nullable: true
+  })
+  shopName?: string;
 
-  @Column("varchar", { length: 255 })
-  email?: string | undefined;
+  @Column("varchar", { length: 255,nullable: true })
+  email: string | undefined;
 
-  @Column({ type: "varchar", length: 255 })
-  password!: string;
+  @Column({
+    type: "varchar",
+    length: 255,
+    nullable: true
+  })
+  password?: string;
 
 
   @Column({
@@ -35,4 +43,12 @@ export class Seller {
   @OneToOne(() => User, (user) => user.seller)
   @JoinColumn()
   user: User | undefined;
+
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  accessToken?: string | undefined;
+
+  @Column({ type: "text", nullable: true })
+  // passwordResetToken!: string;
+  refreshToken?: string | undefined;
 }

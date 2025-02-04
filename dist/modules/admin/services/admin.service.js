@@ -9,32 +9,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthService = void 0;
+exports.AdminService = void 0;
 const { AppDataSource } = require("../../../infra/db/data-source");
-const Seller_1 = require("../../../entity/Seller");
 const typeorm_1 = require("typeorm");
-const pagination_1 = require("../../../infra/utils/pagination");
+const Account_entity_1 = require("../../../entity/Account.entity");
+const test_seller_1 = require("../../../entity/test-seller");
 const dotenv = require("dotenv");
 dotenv.config();
-class AuthService {
+class AdminService {
     constructor() {
-        this.sellerRepository = AppDataSource.getRepository(Seller_1.Seller);
+        this.sellerRepository = AppDataSource.getRepository(test_seller_1.test_Seller);
+        this.accountRepository = AppDataSource.getRepository(Account_entity_1.Account);
     }
     updateSeller(updateSellerDto, req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { id, username, email, shopName } = req.body;
             try {
-                const seller = yield this.sellerRepository.findOne({ where: { id } });
-                if (!seller) {
+                const { id, username, email, shopName } = updateSellerDto;
+                const account = yield this.accountRepository.findOne({
+                    where: { id },
+                    relations: ["seller"],
+                });
+                if (!account) {
                     return res
                         .status(404)
-                        .json({ message: `User not found with id ${id}` });
+                        .json({ message: `Account not found with id ${id}` });
                 }
-                seller.email = email;
-                seller.shopName = shopName;
-                seller.username = username; // Update the username field
-                yield this.sellerRepository.save(seller);
-                return seller;
+                if (!account.seller) {
+                    return res
+                        .status(404)
+                        .json({ message: `Seller not found for account id ${id}` });
+                }
+                account.email = email;
+                account.seller.username = username;
+                account.seller.shopName = shopName;
+                yield this.accountRepository.save(account);
+                return res.status(200).json({
+                    message: "Seller updated successfully",
+                    account,
+                    seller: account.seller,
+                });
             }
             catch (error) {
                 console.error("Error updating seller:", error.message);
@@ -42,16 +55,23 @@ class AuthService {
             }
         });
     }
-    getSeller(id, req, res) {
+    getSellerById(id, req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const seller = yield this.sellerRepository.findOne({ where: { id } });
-                if (!seller) {
-                    return res
-                        .status(404)
-                        .json({ message: `Seller not found with id ${id}` });
-                }
-                return seller;
+                const sellerId = id; // Ensure ID is treated as a string
+                console.log("Requested Seller ID:", sellerId);
+                // Find the account by `accountId`, not `id`
+                const user = yield this.accountRepository.findOne({
+                    where: { id: sellerId },
+                    relations: ["seller"],
+                    cache: false,
+                });
+                console.log("Seller Data:", user);
+                return {
+                    seller: user.seller,
+                    email: user.email,
+                    role: user.role,
+                };
             }
             catch (error) {
                 console.error("Error fetching seller:", error.message);
@@ -62,23 +82,14 @@ class AuthService {
     getAllSeller(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const page = parseInt(req.query.page) || 1;
-                const limit = parseInt(req.query.limit) || 2;
-                const { data: sellers, total, totalPages } = yield (0, pagination_1.paginate)({
-                    page,
-                    limit,
-                    repository: this.sellerRepository, // Your seller repository
+                const users = yield this.accountRepository.find({
+                    relations: ["seller"],
                 });
-                if (sellers.length === 0) {
-                    return res.status(404).json({ message: 'No sellers found' });
-                }
-                return {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit),
-                    sellers
-                };
+                // Map and filter out null sellers
+                const sellers = users
+                    .map((user) => user.seller)
+                    .filter((seller) => seller !== null);
+                res.status(200).json(sellers);
             }
             catch (error) {
                 console.error("Error fetching seller:", error.message);
@@ -89,16 +100,17 @@ class AuthService {
     deleteSeller(id, req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const seller = yield this.sellerRepository
-                    .createQueryBuilder("seller")
-                    .delete()
-                    .where("seller.id = :id", { id })
-                    .execute();
+                const seller = yield this.accountRepository.findOne({
+                    where: { id },
+                    relations: ["seller"],
+                });
                 if (!seller) {
                     return res
                         .status(404)
                         .json({ message: `Seller not found with id ${id}` });
                 }
+                yield this.accountRepository.delete(id);
+                yield this.sellerRepository.delete({ accountId: id });
                 return seller;
             }
             catch (error) {
@@ -110,8 +122,8 @@ class AuthService {
     searchSeller(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { query, username, email, shopName } = req.query;
-                if (!query && !username && !email && !shopName) {
+                const { query, username, shopName } = req.query;
+                if (!query && !username && !shopName) {
                     return res
                         .status(400)
                         .json({ message: "At least one search parameter is required" });
@@ -124,8 +136,6 @@ class AuthService {
                     // handling for sigle query
                     if (username)
                         whereConditions.push({ username: (0, typeorm_1.ILike)(`%${username}%`) });
-                    if (email)
-                        whereConditions.push({ email: (0, typeorm_1.ILike)(`%${email}%`) });
                     if (shopName)
                         whereConditions.push({ shopName: (0, typeorm_1.ILike)(`%${shopName}%`) });
                 }
@@ -141,4 +151,4 @@ class AuthService {
         });
     }
 }
-exports.AuthService = AuthService;
+exports.AdminService = AdminService;
