@@ -1,11 +1,10 @@
 import { CreateShopDto } from "../dto/create.shop.dto";
 import { Seller_Shop } from "../entity/shop.entity";
-import { Seller } from "../../../entity/Seller";
-import { paginate } from "../../../infra/utils/pagination";
+
 import { test_Seller } from "../../../entity/test-seller";
 import { CreateCategoryDto } from "../dto/create.category.dto";
 import { Product_Category } from "../entity/shopEntity/category.entity";
-import { FindOptionsWhere, Like } from "typeorm";
+
 const { AppDataSource } = require("../../../infra/db/data-source");
 
 export class SellerService {
@@ -15,19 +14,27 @@ export class SellerService {
 
   async createShop(
     shopDto: CreateShopDto,
-    req: unknown,
+    req: any,
     res: unknown
   ): Promise<any> {
     const {
       shopName,
       shopDescription,
       location,
-      logo_url,
       status,
+      logo_url,
       sellerId,
       categoryId,
     } = shopDto;
-
+  
+    // const trimmedShopName = shopName.trim().toLowerCase();
+  
+    let logoUrl = "";
+    if (req.file) {
+      const fullUrl = `${req.protocol}://${req.get("host")}`;
+      logoUrl = `${fullUrl}/uploads/${req.file.filename}`;
+    }
+  
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
     });
@@ -36,31 +43,33 @@ export class SellerService {
       throw new Error("Seller not found");
     }
     if (!category) {
-      throw new Error("category not found with this id");
+      throw new Error("Category not found with this id");
     }
+  
+   
+  
 
+  
     const sellerShop = this.shopRepository.create({
       shopName,
       shopDescription,
       location,
-      logo_url,
+      logo_url: logoUrl,
       status,
       seller,
       category,
     });
     const savedShop = await this.shopRepository.save(sellerShop);
-
-    //here im saving the shopname in seller table
-seller.id
-
-    seller.shopName = shopName; // Update the shopName field
+  
+    // Update the seller's shop name and add the new shop to their list of shops
+    seller.shopName = shopName;
+    seller.shopId=savedShop.id
     if (!seller.shops) {
       seller.shops = [];
     }
-
     seller.shops.push(savedShop);
     await this.sellerRepository.save(seller);
-
+  
     return savedShop;
   }
 
@@ -74,7 +83,7 @@ JOIN seller ON seller.id = s."sellerId";
     `;
 
       const shops = await this.shopRepository.manager.query(rawQuery);
-      console.log("shops",shops)
+      console.log("shops", shops);
       if (!shops.length) {
         return { status: 404, message: "No sellers found" };
       }
@@ -125,7 +134,7 @@ JOIN seller ON seller.id = s."sellerId";
     `;
 
       const shops = await this.shopRepository.manager.query(rawQuery);
-      console.log("shops",shops)
+      console.log("shops", shops);
       if (!shops.length) {
         return { status: 404, message: "No sellers found" };
       }
@@ -135,7 +144,9 @@ JOIN seller ON seller.id = s."sellerId";
     }
   }
 
-  async searchShops(shopName?: string): Promise<{ status: number; message?: string; shops?: any[] }> {
+  async searchShops(
+    shopName?: string
+  ): Promise<{ status: number; message?: string; shops?: any[] }> {
     try {
       // If shopName is provided, search for shops with matching names
       const shops = shopName
@@ -143,15 +154,14 @@ JOIN seller ON seller.id = s."sellerId";
         : [];
 
       if (shops.length === 0) {
-        return { status: 404, message: 'No shops found' };
+        return { status: 404, message: "No shops found" };
       }
 
       return { status: 200, shops };
     } catch (error) {
-      console.error('Error searching shops:', error);
-      return { status: 500, message: 'Something went wrong' };
+      console.error("Error searching shops:", error);
+      return { status: 500, message: "Something went wrong" };
     }
   }
   //search shop api
-
 }

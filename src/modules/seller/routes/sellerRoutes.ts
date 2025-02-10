@@ -9,13 +9,14 @@ import {
   getShopByID,
   searchShops,
 } from "../controller/seller.Controller";
+import upload from "../../../helpers/imageUpload";
 
 const router = Router();
 
 // router.get("/role", AuthorizeRoles("admin"));
 
 // Shop  related routes
-router.post("/create-shop", createShop);
+router.post("/create-shop",upload.single("logo_url"), createShop);
 router.get("/get-all-shops", getAllShops);
 router.get("/get-seller-byID", getShopByID);
 router.get("/search-shop", searchShops);

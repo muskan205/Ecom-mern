@@ -17,16 +17,16 @@ export class Seller_Shop {
   @PrimaryGeneratedColumn()
   id: number | undefined;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255,nullable:true })
   shopName?: string | undefined;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255,nullable:true })
   shopDescription?: string | undefined;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255 ,nullable:true})
   location?: string | undefined;
 
-  @Column("varchar", { length: 255 })
+  @Column("varchar", { length: 255 ,nullable:true})
   logo_url?: string | undefined;
 
   @Column({ type: "enum", enum: ["Active", "Inactive"], default: "Active" })
@@ -36,7 +36,7 @@ export class Seller_Shop {
   @JoinColumn({ name: "categoryId" })
   category: Product_Category | undefined;
 
-  @OneToOne(() => test_Seller, (seller) => seller.shop,{nullable:true})
+  @ManyToOne(() => test_Seller, (seller) => seller.shop,{nullable:true})
   @JoinColumn({name:"sellerId"})
   seller: test_Seller | undefined;
 

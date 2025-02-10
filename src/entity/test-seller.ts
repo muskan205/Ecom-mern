@@ -4,6 +4,7 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from "typeorm";
 
 import { Account } from "./Account.entity";
@@ -31,7 +32,7 @@ export class test_Seller {
   @JoinColumn({ name: "sellerAccount" })
   account: Account | undefined;
 
-  @OneToOne(() => Seller_Shop, (shop) => shop.seller, { nullable: true })
+  @OneToMany(() => Seller_Shop, (shop) => shop.seller, { nullable: true })
   shop: Seller_Shop[] | undefined;
 
   @Column({ type: "integer", nullable: true })

@@ -10,12 +10,14 @@ const admin_routes_1 = __importDefault(require("./modules/admin/routes/admin.rou
 const sellerRoutes_1 = __importDefault(require("./modules/seller/routes/sellerRoutes"));
 const cors_1 = __importDefault(require("cors"));
 require("reflect-metadata"); // Required for TypeORM decorators to work
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
 const port = 3004;
 const dotenv = require("dotenv");
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 dotenv.config();
+const uplaod = (0, multer_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 AppDataSource.initialize()
@@ -25,6 +27,7 @@ AppDataSource.initialize()
     app.use("/api", AuthRoutes_1.default);
     app.use('/seller', admin_routes_1.default);
     app.use('/shop', sellerRoutes_1.default);
+    app.use('/uploads', express_1.default.static("uploads"));
     // Start the Express server
     app.listen(port, () => {
         console.log(`Server is running on http://localhost:${port}`);

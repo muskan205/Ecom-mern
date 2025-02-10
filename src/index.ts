@@ -5,6 +5,8 @@ import adminRoutes from './modules/admin/routes/admin.routes'
 import sellerRoutes from './modules/seller/routes/sellerRoutes'
 import cors from 'cors'
 import "reflect-metadata"; // Required for TypeORM decorators to work
+import path from "path";
+import multer from "multer";
 const app = express();
 const port = 3004;
 const dotenv =require("dotenv")
@@ -12,7 +14,7 @@ var cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 dotenv.config()
-
+const uplaod=multer()
 app.use(express.json());
 app.use(cors())
 AppDataSource.initialize()
@@ -23,7 +25,7 @@ AppDataSource.initialize()
     app.use("/api", userRoutes);
     app.use('/seller',adminRoutes)
     app.use('/shop',sellerRoutes)
-    
+    app.use('/uploads', express.static("uploads"));
 
     // Start the Express server
     app.listen(port, () => {
