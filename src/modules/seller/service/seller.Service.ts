@@ -11,6 +11,7 @@ export class SellerService {
   private shopRepository = AppDataSource.getRepository(Seller_Shop);
   private sellerRepository = AppDataSource.getRepository(test_Seller);
   private categoryRepository = AppDataSource.getRepository(Product_Category);
+  accountRepository: any;
 
   async createShop(
     shopDto: CreateShopDto,
@@ -26,15 +27,15 @@ export class SellerService {
       sellerId,
       categoryId,
     } = shopDto;
-  
+
     // const trimmedShopName = shopName.trim().toLowerCase();
-  
+
     let logoUrl = "";
     if (req.file) {
       const fullUrl = `${req.protocol}://${req.get("host")}`;
       logoUrl = `${fullUrl}/uploads/${req.file.filename}`;
     }
-  
+
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
     });
@@ -45,11 +46,7 @@ export class SellerService {
     if (!category) {
       throw new Error("Category not found with this id");
     }
-  
-   
-  
 
-  
     const sellerShop = this.shopRepository.create({
       shopName,
       shopDescription,
@@ -60,27 +57,91 @@ export class SellerService {
       category,
     });
     const savedShop = await this.shopRepository.save(sellerShop);
-  
+
     // Update the seller's shop name and add the new shop to their list of shops
     seller.shopName = shopName;
-    seller.shopId=savedShop.id
+    seller.shopId = savedShop.id;
     if (!seller.shops) {
       seller.shops = [];
     }
     seller.shops.push(savedShop);
     await this.sellerRepository.save(seller);
-  
+
     return savedShop;
+  }
+
+  async deleteshop(id: string): Promise<{ message: string }> {
+    try {
+      const seller = await this.shopRepository.findOneBy({ id });
+
+      if (!seller) {
+        throw new Error("Shop not found");
+      }
+
+      await this.shopRepository.delete(id);
+
+      return { message: "Shop deleted successfully" }; // Return confirmation
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to delete shop");
+    }
+  }
+  async updateShop(id: string, req?: any, res?: unknown): Promise<any> {
+    try {
+      const { id, categoryId, shopName, shopDescription, location, status } =
+        req.body;
+
+      const shop = await this.shopRepository.findOneBy({ id });
+      if (!shop) {
+        throw new Error("Shop not found");
+      }
+
+      // Update logo if a new file is uploaded
+      if (req.file) {
+        const fullUrl = `${req.protocol}://${req.get("host")}`;
+        shop.logo_url = `${fullUrl}/uploads/${req.file.filename}`;
+      }
+
+      // Update category if provided
+      if (categoryId) {
+        const category = await this.categoryRepository.findOneBy({
+          id: categoryId,
+        });
+        if (!category) {
+          throw new Error("Category not found");
+        }
+        shop.category = category;
+      }
+
+      // Update fields if provided
+      console.log(shopName, "shopName**************");
+      if (shopName) shop.shopName = shopName;
+      if (location) shop.location = location;
+      if (shopDescription) shop.shopDescription = shopDescription;
+      if (status) shop.status = status;
+
+      console.log("Updated Shop Data:", shop);
+
+      // Save updated shop
+      const updatedShop = await this.shopRepository.save(shop);
+
+      return {
+        status: 200,
+        message: "Shop updated successfully",
+        data: updatedShop,
+      };
+    } catch (error: any) {
+      console.error("Error updating shop:", error);
+      return {
+        status: 500,
+        message: "Failed to update shop",
+        error: error.message,
+      };
+    }
   }
 
   async getAllShops(): Promise<any> {
     try {
-      const rawQuery = `
-     SELECT s.*
-FROM seller_shop s
-JOIN seller ON seller.id = s."sellerId";
-
-    `;
+      const rawQuery = `select * from seller_shop`;
 
       const shops = await this.shopRepository.manager.query(rawQuery);
       console.log("shops", shops);

@@ -70,3 +70,24 @@ export const getProductCategory = async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+export const deleteShop = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await sellerService.deleteshop(id); // No need for req, res
+
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+export const updateShop = async (req: Request, res: Response) => {
+  try {
+ 
+    const updatedShop = await sellerService.updateShop( req.body, req);
+    res.status(200).json({ message: "Shop updated successfully", shop: updatedShop });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
