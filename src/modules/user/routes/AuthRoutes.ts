@@ -14,10 +14,10 @@ const router = Router();
 
 router.post("/forgetPAssword", forgetPassword);
 
-router.get("/get/users", AuthorizeRoles(["admin"]), getUsers);
+router.get("/get/users", getUsers);
 router.post("/resetpassword", resetPassword);
 router.post("/verifyOtp", verifyOtp);
-router.get("/get-user-by-Id", AuthorizeRoles(["admin"]), getUserByID);
+router.get("/get-user-by-Id", getUserByID);
 
 router.post("/register", registration);
 router.post("/login", login);
