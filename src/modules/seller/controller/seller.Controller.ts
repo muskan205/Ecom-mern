@@ -3,6 +3,7 @@ import { CreateShopDto } from "../dto/create.shop.dto";
 import { SellerService } from "../service/seller.Service";
 import { Request, Response } from "express";
 import { CreateCategoryDto } from "../dto/create.category.dto";
+import { CreateSubCategoryDto } from "../dto/create.subCategory.dto";
 
 const sellerService = new SellerService();
 
@@ -89,5 +90,26 @@ export const updateShop = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Shop updated successfully", shop: updatedShop });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
+  }
+};
+export const createSubCategory = async (req: Request, res: Response) => {
+  try {
+    const shopDto: CreateSubCategoryDto = req.body;
+    const user = await sellerService.createSubCategory(shopDto, req, res);
+    res
+      .status(201)
+      .json({ message: "sub category created successfully", user });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+export const getProductSubCategory = async (req: Request, res: Response) => {
+  try {
+    const result = await sellerService.getProductSubCategory();
+    res
+      .status(result.status)
+      .json({ message: "categories retrieved successfully", result });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 };

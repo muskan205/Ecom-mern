@@ -4,9 +4,11 @@ import AuthorizeRoles from "../../../infra/utils/auth.middleware";
 import {
   createCategory,
   createShop,
+  createSubCategory,
   deleteShop,
   getAllShops,
   getProductCategory,
+  getProductSubCategory,
   getShopByID,
   searchShops,
   updateShop,
@@ -27,5 +29,7 @@ router.put('/update-shop',upload.single("logo_url"),updateShop)
 //product related routes
 router.post("/create-category", createCategory);
 router.get("/get-category",getProductCategory)
+router.post("/create-subCategory",createSubCategory)
+router.get("/get-subcategory",getProductSubCategory)
 
 export default router;

@@ -9,7 +9,6 @@ import {
 } from "typeorm";
 import { Product } from "./shopEntity/product.entity";
 import { Product_Category } from "./shopEntity/category.entity";
-import { Seller } from "../../../entity/Seller";
 import { test_Seller } from "../../../entity/test-seller";
 
 @Entity("seller_shop")
@@ -17,16 +16,16 @@ export class Seller_Shop {
   @PrimaryGeneratedColumn()
   id: number | undefined;
 
-  @Column("varchar", { length: 255,nullable:true })
+  @Column("varchar", { length: 255, nullable: true })
   shopName?: string | undefined;
 
-  @Column("varchar", { length: 255,nullable:true })
+  @Column("varchar", { length: 255, nullable: true })
   shopDescription?: string | undefined;
 
-  @Column("varchar", { length: 255 ,nullable:true})
+  @Column("varchar", { length: 255, nullable: true })
   location?: string | undefined;
 
-  @Column("varchar", { length: 255 ,nullable:true})
+  @Column("varchar", { length: 255, nullable: true })
   logo_url?: string | undefined;
 
   @Column({ type: "enum", enum: ["Active", "Inactive"], default: "Active" })
@@ -36,8 +35,8 @@ export class Seller_Shop {
   @JoinColumn({ name: "categoryId" })
   category: Product_Category | undefined;
 
-  @ManyToOne(() => test_Seller, (seller) => seller.shop,{nullable:true})
-  @JoinColumn({name:"sellerId"})
+  @ManyToOne(() => test_Seller, (seller) => seller.shop, { nullable: true })
+  @JoinColumn({ name: "sellerId" })
   seller: test_Seller | undefined;
 
   @OneToMany(() => Product, (product) => product.shop)
