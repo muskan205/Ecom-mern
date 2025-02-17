@@ -4,6 +4,9 @@ import { Seller_Shop } from "../entity/shop.entity";
 import { test_Seller } from "../../../entity/test-seller";
 import { CreateCategoryDto } from "../dto/create.category.dto";
 import { Product_Category } from "../entity/shopEntity/category.entity";
+import { CreateSubCategoryDto } from "../dto/create.subCategory.dto";
+import { SubCategory } from "../entity/shopEntity/subcategory.entity";
+import { In } from "typeorm";
 
 const { AppDataSource } = require("../../../infra/db/data-source");
 
@@ -11,8 +14,10 @@ export class SellerService {
   private shopRepository = AppDataSource.getRepository(Seller_Shop);
   private sellerRepository = AppDataSource.getRepository(test_Seller);
   private categoryRepository = AppDataSource.getRepository(Product_Category);
-  accountRepository: any;
-
+  private subCategoryRpo = AppDataSource.getRepository(SubCategory);
+  shopRepo: any;
+  // accountRepository: any;
+  //shop api
   async createShop(
     shopDto: CreateShopDto,
     req: any,
@@ -89,7 +94,10 @@ export class SellerService {
     try {
       const { id, categoryId, shopName, shopDescription, location, status } =
         req.body;
-
+      const categoryName = await this.categoryRepository.findOneBy({
+        id: categoryId,
+      });
+      console.log("categoryname", categoryName);
       const shop = await this.shopRepository.findOneBy({ id });
       if (!shop) {
         throw new Error("Shop not found");
@@ -113,21 +121,29 @@ export class SellerService {
       }
 
       // Update fields if provided
-      console.log(shopName, "shopName**************");
+
       if (shopName) shop.shopName = shopName;
       if (location) shop.location = location;
       if (shopDescription) shop.shopDescription = shopDescription;
       if (status) shop.status = status;
 
-      console.log("Updated Shop Data:", shop);
-
       // Save updated shop
       const updatedShop = await this.shopRepository.save(shop);
 
+      // console.log("Updated Shop Data:", shop);
       return {
         status: 200,
         message: "Shop updated successfully",
-        data: updatedShop,
+        data: {
+          id: updatedShop.id,
+          shopName: updatedShop.shopName,
+          shopDescription: updatedShop.shopDescription,
+          location: updatedShop.location,
+          logo_url: updatedShop.logo_url,
+          status: updatedShop.status,
+          categoryId: updatedShop.category?.id || null,
+          categoryName: updatedShop.category?.categoryName || null, // Send category name directly
+        },
       };
     } catch (error: any) {
       console.error("Error updating shop:", error);
@@ -141,7 +157,12 @@ export class SellerService {
 
   async getAllShops(): Promise<any> {
     try {
-      const rawQuery = `select * from seller_shop`;
+      const rawQuery = ` SELECT 
+  ss.*,
+  c."categoryName" 
+FROM 
+  seller_shop ss
+  JOIN category c ON ss."categoryId" = c.id`;
 
       const shops = await this.shopRepository.manager.query(rawQuery);
       console.log("shops", shops);
@@ -166,6 +187,29 @@ export class SellerService {
     }
   }
 
+  async searchShops(
+    shopName?: string
+  ): Promise<{ status: number; message?: string; shops?: any[] }> {
+    try {
+      // If shopName is provided, search for shops with matching names
+      const shops = shopName
+        ? await this.shopRepository.find({ where: { shopName } })
+        : [];
+
+      if (shops.length === 0) {
+        return { status: 404, message: "No shops found" };
+      }
+
+      return { status: 200, shops };
+    } catch (error) {
+      console.error("Error searching shops:", error);
+      return { status: 500, message: "Something went wrong" };
+    }
+  }
+  //search shop api
+  //productrelated api's
+
+  //category AND subcategories
   async createCategory(
     categoryDto: CreateCategoryDto,
     req: unknown,
@@ -204,25 +248,124 @@ export class SellerService {
       throw new Error("Something went wrong");
     }
   }
-
-  async searchShops(
-    shopName?: string
-  ): Promise<{ status: number; message?: string; shops?: any[] }> {
+  async getProductCategoryById(id: string): Promise<any> {
     try {
-      // If shopName is provided, search for shops with matching names
-      const shops = shopName
-        ? await this.shopRepository.find({ where: { shopName } })
-        : [];
-
-      if (shops.length === 0) {
+      const categories = await this.categoryRepository.findOneBy({ id });
+      if (!categories) {
         return { status: 404, message: "No shops found" };
       }
-
-      return { status: 200, shops };
-    } catch (error) {
-      console.error("Error searching shops:", error);
-      return { status: 500, message: "Something went wrong" };
+      return { status: 200, categories };
+    } catch (error: any) {
+      throw new Error("Something went wrong");
     }
   }
-  //search shop api
+
+  async deleteCategory(id: string): Promise<{ message: string }> {
+    try {
+      const category = await this.categoryRepository.findOne({ where: { id } });
+      console.log("category", category);
+
+      if (!category) {
+        throw new Error("Category not found");
+      }
+
+      // Soft delete all related shops
+      const shop = await this.shopRepository.update(
+        { category: { id } },
+        { isDeleted: true }
+      );
+      console.log("shop", shop);
+      // Soft delete all related subcategories
+      const sell = await this.subCategoryRpo.update(
+        { category: { id } },
+        { isDeleted: true }
+      );
+      console.log("sell", sell);
+      // Soft delete the category
+      await this.categoryRepository.update(id, { isDeleted: true });
+
+      return {
+        message:
+          "Category and its related subcategories and shops marked as deleted",
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to delete category");
+    }
+  }
+
+  async createSubCategory(
+    categoryDto: CreateSubCategoryDto,
+    req: unknown,
+    res: unknown
+  ): Promise<any> {
+    let { categoryId, subCategoryName } = categoryDto;
+
+    const existingSubCategory = await this.subCategoryRpo.findOneBy({
+      subCategoryName,
+    });
+
+    const category = await this.categoryRepository.findOneBy({
+      id: categoryId,
+    });
+    console.log(category.id, "*****************");
+    if (existingSubCategory) {
+      throw new Error("Category already exists");
+    }
+
+    const Subcategory = this.subCategoryRpo.create({
+      category,
+      subCategoryName,
+    });
+
+    return this.subCategoryRpo.save(Subcategory);
+  }
+
+  async getProductSubCategory(): Promise<any> {
+    try {
+      const rawQuery = `
+   select * from subcategory
+
+    `;
+
+      const shops = await this.subCategoryRpo.manager.query(rawQuery);
+      console.log("subCatgeoreis", shops);
+      if (!shops.length) {
+        return { status: 404, message: "No sellers found" };
+      }
+      return { status: 200, shops };
+    } catch (error: any) {
+      throw new Error("Something went wrong");
+    }
+  }
+  async getProductSubCategoryById(id: string): Promise<any> {
+    try {
+      const subCategory = await this.subCategoryRpo
+        .createQueryBuilder("subCategory")
+        .leftJoinAndSelect("subCategory.category", "category")
+        .where("subCategory.id = :id", { id })
+        .getOne();
+
+      if (!subCategory) {
+        return { status: 404, message: "No sellers found" };
+      }
+      return { status: 200, subCategory };
+    } catch (error: any) {
+      return { status: 404, message: "No sellers found" };
+    }
+  }
+  async deleteSubCategory(id: string): Promise<{ message: string }> {
+    try {
+      const subcategory = await this.subCategoryRpo.findOneBy({ id });
+
+      if (!subcategory) {
+        throw new Error("SubCategory not found");
+      }
+
+      await this.subCategoryRpo.delete(id);
+
+      return { message: "Shop deleted successfully" }; // Return confirmation
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to delete shop");
+    }
+  }
 }

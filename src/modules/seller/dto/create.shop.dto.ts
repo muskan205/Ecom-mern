@@ -3,15 +3,13 @@ import { IsOptional, IsString } from "class-validator";
 export class CreateShopDto {
   // @IsOptional()
   @IsString()
-  shopName: string | undefined
+  shopName: string | undefined;
 
   @IsString()
   shopDescription?: undefined;
 
-
   @IsString()
- category?: undefined;
-
+  category?: undefined;
 
   @IsString()
   location?: string | undefined;
@@ -29,10 +27,8 @@ export class CreateShopDto {
   email: string | undefined;
 
   @IsString()
-  sellerId:string |undefined
+  sellerId: string | undefined;
 
   @IsString()
-  categoryId:string |undefined
-
-  
+  categoryId: string | undefined;
 }

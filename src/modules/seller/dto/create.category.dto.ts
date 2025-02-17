@@ -1,3 +1,3 @@
 export class CreateCategoryDto {
-    categoryName: string | undefined;
-  }
+  categoryName: string | undefined;
+}
