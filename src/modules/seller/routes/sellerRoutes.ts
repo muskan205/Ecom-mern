@@ -3,6 +3,7 @@ import { Router } from "express";
 import AuthorizeRoles from "../../../infra/utils/auth.middleware";
 import {
   createCategory,
+  createProduct,
   createShop,
   createSubCategory,
   deleteCategory,
@@ -37,6 +38,8 @@ router.post("/create-subCategory",createSubCategory)
 router.get("/get-subcategory",getProductSubCategory)
 router.get("/get-category-by-id/:id",getCategoryID)
 router.get("/get-subcategory-by-id/:id",getSubCategoryById)
-router.delete('/delete-subCategory/:id',deleteSubCategory)
-router.delete("/delete-category-id/:id",deleteCategory)
+router.delete('/delete-subCategory',deleteSubCategory)
+router.delete("/delete-category-id",deleteCategory)
+//product route
+router.post("/create-product",createProduct)
 export default router;

@@ -7,6 +7,8 @@ import { Product_Category } from "../entity/shopEntity/category.entity";
 import { CreateSubCategoryDto } from "../dto/create.subCategory.dto";
 import { SubCategory } from "../entity/shopEntity/subcategory.entity";
 import { In } from "typeorm";
+import { CreateProductDto } from "../dto/create.product.dto";
+import { Product } from "../entity/shopEntity/product.entity";
 
 const { AppDataSource } = require("../../../infra/db/data-source");
 
@@ -15,6 +17,7 @@ export class SellerService {
   private sellerRepository = AppDataSource.getRepository(test_Seller);
   private categoryRepository = AppDataSource.getRepository(Product_Category);
   private subCategoryRpo = AppDataSource.getRepository(SubCategory);
+  private productRepository = AppDataSource.getRepository(Product);
   shopRepo: any;
   // accountRepository: any;
   //shop api
@@ -234,7 +237,7 @@ FROM
   async getProductCategory(): Promise<any> {
     try {
       const rawQuery = `
-   select * from category
+  SELECT * FROM category WHERE "isDeleted" = false
 
     `;
 
@@ -274,7 +277,7 @@ FROM
         { category: { id } },
         { isDeleted: true }
       );
-      console.log("shop", shop);
+      // console.log("shop", shop);
       // Soft delete all related subcategories
       const sell = await this.subCategoryRpo.update(
         { category: { id } },
@@ -300,6 +303,7 @@ FROM
   ): Promise<any> {
     let { categoryId, subCategoryName } = categoryDto;
 
+    console.log("category******* subcaetgory", categoryId, subCategoryName);
     const existingSubCategory = await this.subCategoryRpo.findOneBy({
       subCategoryName,
     });
@@ -308,9 +312,9 @@ FROM
       id: categoryId,
     });
     console.log(category.id, "*****************");
-    if (existingSubCategory) {
-      throw new Error("Category already exists");
-    }
+    // if (existingSubCategory) {
+    //   throw new Error("Category already exists");
+    // }
 
     const Subcategory = this.subCategoryRpo.create({
       category,
@@ -323,7 +327,7 @@ FROM
   async getProductSubCategory(): Promise<any> {
     try {
       const rawQuery = `
-   select * from subcategory
+   select * from subcategory WHERE "isDeleted" = false
 
     `;
 
@@ -368,4 +372,42 @@ FROM
       throw new Error(error.message || "Failed to delete shop");
     }
   }
+  async createProduct(
+    shopDto: CreateProductDto,
+    req: any
+  ): Promise<any> {
+    const {
+      name,
+      description,
+      imageId,
+      shopID,
+      sizeID,
+      subCategoryID,
+      categoryID,
+      qunatity, // Fixed typo
+      price,
+    } = shopDto;
+  
+    try {
+      const newProduct = this.productRepository.create({
+        name,
+        description,
+        imageId,
+        shopID,
+        sizeID,
+        subCategoryID,
+        categoryID,
+        qunatity,
+        price,
+      });
+      console.log("avedProduct*************",newProduct)
+      const savedProduct = await this.productRepository.save(newProduct);
+  console.log("avedProduct*************",savedProduct)
+      return savedProduct;
+    } catch (error) {
+      throw new Error(`Failed to create product`);
+    }
+  }
+  
 }
+//product related api's

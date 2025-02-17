@@ -3,6 +3,7 @@ import { SellerService } from "../service/seller.Service";
 import { Request, Response } from "express";
 import { CreateCategoryDto } from "../dto/create.category.dto";
 import { CreateSubCategoryDto } from "../dto/create.subCategory.dto";
+import { CreateProductDto } from "../dto/create.product.dto";
 
 const sellerService = new SellerService();
 
@@ -101,7 +102,7 @@ export const getCategoryID = async (req: Request, res: Response) => {
 };
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.body;
     const result = await sellerService.deleteCategory(id); // No need for req, res
 
     res.status(200).json(result);
@@ -146,10 +147,26 @@ export const getSubCategoryById = async (req: Request, res: Response) => {
 };
 export const deleteSubCategory = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.body;
     const result = await sellerService.deleteSubCategory(id); // No need for req, res
 
     res.status(200).json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const createProduct = async (req: Request, res: Response) => {
+  try {
+    const shopDto: CreateProductDto = req.body;
+
+    // Ensure this function doesn't take `res` as a parameter
+    const newProduct = await sellerService.createProduct(shopDto, req);
+console.log("new product*****************",newProduct)
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+    });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
