@@ -33,7 +33,6 @@ export class Product {
   @ManyToOne(() => Seller_Shop, (shop) => shop.products)
   @JoinColumn({ name: "shopID" })
   shop!: Seller_Shop;
-  
 
   @ManyToOne(() => Product_Category, (category) => category.products)
   @JoinColumn({ name: "categoryID" })
@@ -46,12 +45,10 @@ export class Product {
   @Column({ type: "varchar", length: 255 })
   imageId!: string;
 
-  @OneToMany(() => Images, (images) =>images.product )
+  @OneToMany(() => Images, (images) => images.product)
   images: Images[] | undefined;
 
   @ManyToOne(() => Size, (size) => size.products)
-@JoinColumn({ name: "sizeID" })
-size!: Size;
-
-  
+  @JoinColumn({ name: "sizeID" })
+  size!: Size;
 }
