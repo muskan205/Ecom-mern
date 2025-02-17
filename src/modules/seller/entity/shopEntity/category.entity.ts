@@ -20,5 +20,9 @@ export class Product_Category {
 
   @OneToMany(()=>SubCategory,(subcategory)=>subcategory.category)
   subCategory:SubCategory[]| undefined
+  
+  @Column({ type: "boolean", default: false })
+isDeleted: boolean | undefined;
+
 
 }

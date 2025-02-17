@@ -41,4 +41,8 @@ export class Seller_Shop {
 
   @OneToMany(() => Product, (product) => product.shop)
   products?: Product[] | undefined;
+  
+  @Column({ type: "boolean", default: false })
+isDeleted: boolean | undefined;
+
 }
