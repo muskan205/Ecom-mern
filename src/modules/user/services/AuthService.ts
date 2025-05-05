@@ -37,7 +37,7 @@ export class AuthService {
     try {
       const existingAccount = await this.accountRepository.findOneBy({ email });
       if (existingAccount) {
-        return res.status(400).json({ message: "Email already exists" });
+         res.status(400).json({ message: "Email already exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);

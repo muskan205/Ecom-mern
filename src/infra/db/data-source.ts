@@ -8,7 +8,7 @@ module.exports = {
     host: "localhost",
     port: 5432,
     username: "postgres",
-    password: "geitpl",
+    password: "Geitpl",
     database: "muskan_eommerce",
     synchronize: false,
     entities: ["src/entity/*.ts","src/modules/seller/entity/*ts","src/modules/seller/entity/shopEntity/*ts"],

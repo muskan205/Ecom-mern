@@ -26,9 +26,11 @@ export const getSellerByID = async (req: Request, res: Response) => {
 export const deleteSeller = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const seller = await authService.deleteSeller(id, req, res);
-    res.status(200).json({ message: "Seller deleted successfully", seller });
+    const result = await authService.deleteSeller(parseInt(id)); // Call the service, don't pass req,res
+    // Handle success in the controller:
+    res.status(200).json(result); //  Send 200 with the result from the service.
   } catch (error: any) {
+    // Handle errors in the controller:
     res.status(400).json({ error: error.message });
   }
 };

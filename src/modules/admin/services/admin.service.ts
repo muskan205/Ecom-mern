@@ -19,14 +19,14 @@ export class AdminService {
     res: Response
   ): Promise<any> {
     try {
-      const { id:sellerId, username, email, shopName } = updateSellerDto;
+      const { id: sellerId, username, email, shopName } = updateSellerDto;
 
-     // Find the account by `accountId`, not `id`
-     const account = await this.accountRepository.findOne({
-      where: { id:sellerId},
-      relations: ["seller"],
-      cache: false,
-    });
+      // Find the account by `accountId`, not `id`
+      const account = await this.accountRepository.findOne({
+        where: { id: sellerId },
+        relations: ["seller"],
+        cache: false,
+      }); 
 
       if (!account) {
         return res
@@ -118,32 +118,34 @@ export class AdminService {
       return res.status(500).json({ message: "Something went wrong" });
     }
   }
-  async deleteSeller(id: string, req: Request, res: Response): Promise<any> {
+  async deleteSeller(id: number): Promise<any> {
     try {
-      const seller = await this.accountRepository.findOne({
-        where: { id },
-        relations: ["seller"],
-      });
+      console.log("Deleting seller with ID (service function):", id);
+      const selectQuery = `SELECT * FROM "test-seller1" WHERE id = $1`;
+      console.log("SELECT query:", selectQuery, "with params:", [id]);
+      const seller = await this.sellerRepository.manager.query(
+        selectQuery,
+        [id]
+      );
 
-      if (!seller) {
-        return res
-          .status(404)
-          .json({ message: `Seller not found with id ${id}` });
+      if (!seller.length) {
+        throw new Error("Seller not found");
       }
 
-      // Delete the seller entity
-      // await this.sellerRepository.delete({ accountId: id });
+      const accountId = seller[0].accountId;
+      console.log("Account ID to delete:", accountId);
+      const deleteQuery = `DELETE FROM account WHERE id = $1`;
+      console.log("DELETE query:", deleteQuery, "with params:", [accountId]);
+      await this.accountRepository.manager.query(
+        deleteQuery,
+        [accountId]
+      );
 
-      // Delete the account entity
-      await this.accountRepository.delete(id);
-
-      return res.status(200).json({ message: "Seller deleted successfully" });
+      return { message: "Seller and account deleted successfully" };
     } catch (error: any) {
-      console.error("Error deleting seller:", error.message);
-      return res.status(500).json({ message: "Something went wrong" });
+      throw error;
     }
   }
-
   async searchSeller(req: Request, res: Response): Promise<any> {
     try {
       const { query, username, shopName } = req.query;
