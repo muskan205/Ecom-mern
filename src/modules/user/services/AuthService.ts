@@ -37,7 +37,7 @@ export class AuthService {
     try {
       const existingAccount = await this.accountRepository.findOneBy({ email });
       if (existingAccount) {
-         res.status(400).json({ message: "Email already exists" });
+        return res.status(400).json({ message: "Email already exists" });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -116,7 +116,14 @@ export class AuthService {
         return res.status(401).json({ message: "User not found" });
       }
 
-      return res.status(200).json({ account, user });
+      return res.status(200).json({
+        message: "Login successful",
+        account,
+        user,
+        accessToken,
+        refreshToken,
+        status: 200,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
@@ -129,7 +136,7 @@ export class AuthService {
   ): Promise<any> {
     const mailService = new MailService();
     const { email } = forgetPasswordDto;
-
+    console.log("email", email)
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
@@ -178,12 +185,13 @@ export class AuthService {
     await this.accountRepository.save(user);
     res.setHeader("Authorization", `Bearer ${accessToken}`);
     // Send success response
-    return res.status(200).json({
+    return {
       message: "OTP sent successfully. It will expire in 5 minutes.",
       accessToken,
       refreshToken,
       user,
-    });
+      code:201
+    };
   }
 
   async verifyOtp(
@@ -208,7 +216,7 @@ export class AuthService {
         .json({ message: "OTP has expired. Please request a new one." });
     }
 
-    return res.status(200).json({ message: "OTP is valid.", ExpirationTime });
+    return res.status(200).json({ message: "OTP is valid.", ExpirationTime ,code:200});
   }
 
   async getUsers(req: any, res: any): Promise<any> {
@@ -248,12 +256,12 @@ export class AuthService {
   }
 
   async resetPassword(req: Request, res: Response): Promise<any> {
-    const { id, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
     if (password != confirmPassword) {
       res.status(400).json({ message: "Password do not match" });
     }
     try {
-      const user = await this.accountRepository.findOneBy({ id });
+      const user = await this.accountRepository.findOneBy({ email });
       console.log("********user*****", user);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -263,8 +271,8 @@ export class AuthService {
       await this.accountRepository.save(user);
 
       return res.status(200).json({
-        message: "Password reset successfully",
-
+        message: "Password updated successfully",
+code:200,
         user,
       });
     } catch (error) {
