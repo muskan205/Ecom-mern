@@ -44,7 +44,7 @@ export const createCategory = async (req: Request, res: Response) => {
     const user = await sellerService.createCategory(shopDto, req, res);
     res
       .status(201)
-      .json({ message: "Product category created successfully", user });
+      .json({ message: "Product category created successfully", user,code:201 });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
