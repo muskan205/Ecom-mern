@@ -105,7 +105,10 @@ export const deleteCategory = async (req: Request, res: Response) => {
     const { id } = req.body;
     const result = await sellerService.deleteCategory(id); // No need for req, res
 
-    res.status(200).json(result);
+    res.status(200).json({
+      status: 200,
+      message: result.message,
+    });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
@@ -162,7 +165,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Ensure this function doesn't take `res` as a parameter
     const newProduct = await sellerService.createProduct(shopDto, req);
-console.log("new product*****************",newProduct)
+    console.log("new product*****************",newProduct)
     res.status(201).json({
       message: "Product created successfully",
       product: newProduct,

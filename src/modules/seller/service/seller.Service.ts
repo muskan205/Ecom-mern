@@ -288,6 +288,7 @@ FROM
       await this.categoryRepository.update(id, { isDeleted: true });
 
       return {
+       
         message:
           "Category and its related subcategories and shops marked as deleted",
       };

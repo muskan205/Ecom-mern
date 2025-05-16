@@ -43,12 +43,14 @@ export class AdminService {
       account.email = email;
       account.seller.username = username;
       account.seller.shopName = shopName;
-      await this.sellerRepository.save(account.seller);
-      await this.accountRepository.save(account);
+   const test=   await this.sellerRepository.save(account.seller);
+   const eco=   await this.accountRepository.save(account);
 
       return res.status(200).json({
         message: "Seller updated successfully",
         account,
+        test,
+        eco,
         seller: account.seller,
       });
     } catch (error: any) {
