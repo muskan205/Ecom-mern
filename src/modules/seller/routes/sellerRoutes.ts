@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import AuthorizeRoles from "../../../infra/utils/auth.middleware";
 import {
+  analyticsCount,
   createCategory,
   createProduct,
   createShop,
@@ -40,6 +41,7 @@ router.get("/get-category-by-id/:id",getCategoryID)
 router.get("/get-subcategory-by-id/:id",getSubCategoryById)
 router.delete('/delete-subCategory',deleteSubCategory)
 router.delete("/delete-category-id",deleteCategory)
+router.get('/get-analytics',analyticsCount)
 //product route
 router.post("/create-product",createProduct)
 export default router;

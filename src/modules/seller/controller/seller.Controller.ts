@@ -44,7 +44,7 @@ export const createCategory = async (req: Request, res: Response) => {
     const user = await sellerService.createCategory(shopDto, req, res);
     res
       .status(201)
-      .json({ message: "Product category created successfully", user,code:201 });
+      .json({ message: "Product category created successfully", user, code: 201 });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
@@ -165,10 +165,25 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Ensure this function doesn't take `res` as a parameter
     const newProduct = await sellerService.createProduct(shopDto, req);
-    console.log("new product*****************",newProduct)
+    console.log("new product*****************", newProduct)
     res.status(201).json({
       message: "Product created successfully",
       product: newProduct,
+    });
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+export const analyticsCount = async (req: Request, res: Response) => {
+  try {
+
+    const count = await sellerService.getAnalytics()
+    console.log("new product*****************", count)
+    res.status(201).json({
+      message: "Analtytics details fetched successfully",
+      count,
     });
   } catch (error: any) {
     res.status(400).json({ error: error.message });

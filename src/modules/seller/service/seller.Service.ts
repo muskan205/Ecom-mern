@@ -9,6 +9,8 @@ import { SubCategory } from "../entity/shopEntity/subcategory.entity";
 import { In } from "typeorm";
 import { CreateProductDto } from "../dto/create.product.dto";
 import { Product } from "../entity/shopEntity/product.entity";
+import { Seller_Analytics } from "../entity/analytics.entity";
+import Redis from "ioredis";
 
 const { AppDataSource } = require("../../../infra/db/data-source");
 
@@ -18,6 +20,8 @@ export class SellerService {
   private categoryRepository = AppDataSource.getRepository(Product_Category);
   private subCategoryRpo = AppDataSource.getRepository(SubCategory);
   private productRepository = AppDataSource.getRepository(Product);
+  private analyticsReposiotory = AppDataSource.getRepository(Seller_Analytics)
+  private readonly redisClient: Redis = new Redis;
   shopRepo: any;
   // accountRepository: any;
   //shop api
@@ -288,7 +292,7 @@ FROM
       await this.categoryRepository.update(id, { isDeleted: true });
 
       return {
-       
+
         message:
           "Category and its related subcategories and shops marked as deleted",
       };
@@ -388,7 +392,7 @@ FROM
       qunatity, // Fixed typo
       price,
     } = shopDto;
-  
+
     try {
       const newProduct = this.productRepository.create({
         name,
@@ -401,14 +405,41 @@ FROM
         qunatity,
         price,
       });
-      console.log("avedProduct*************",newProduct)
+      console.log("avedProduct*************", newProduct)
       const savedProduct = await this.productRepository.save(newProduct);
-  console.log("avedProduct*************",savedProduct)
+      console.log("avedProduct*************", savedProduct)
       return savedProduct;
     } catch (error) {
       throw new Error(`Failed to create product`);
     }
   }
-  
+
+  async getAnalytics(): Promise<any> {
+    try {
+      const cacheKey = 'analytics_summary';
+      const cached = await this.redisClient.get(cacheKey);
+
+      if (cached) {
+        return JSON.parse(cached);
+      }
+
+      const subCategoryCount = await this.subCategoryRpo.count();
+      const shopCount = await this.shopRepository.count();
+      const productCount = await this.productRepository.count();
+      const analytics = new Seller_Analytics()
+      analytics.totalProducts = productCount;
+      analytics.totalShops = shopCount;
+      analytics.totalSubcategories = subCategoryCount
+
+      const savedAnalytics = await this.analyticsReposiotory.save(analytics);
+
+      // Cache result in Redis for 5 minutes
+      await this.redisClient.set(cacheKey, JSON.stringify(savedAnalytics), 'EX', 300);
+
+      return savedAnalytics;
+    } catch (error: any) {
+      return { status: 404, message: "No sellers found" };
+    }
+  }
 }
-//product related api's
+
